@@ -1,0 +1,6 @@
+{
+  "name": "RenewU - Academic Registration & Moodle Payment Portal",
+  "description": "Portal de inscripción y pagos multirregión para Renew University con sincronización para base de datos de usuarios Moodle e integración de IA tutor.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
