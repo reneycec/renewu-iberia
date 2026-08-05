@@ -25,12 +25,9 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Brand Logo */}
         <div 
           onClick={() => onViewChange("courses")}
-          className="cursor-pointer flex items-center gap-2 text-2xl md:text-3xl font-extrabold text-[#1A1A19] tracking-tight hover:opacity-90 transition-opacity"
+          className="cursor-pointer flex items-center gap-2 hover:opacity-90 transition-opacity"
         >
-          <div className="w-9 h-9 rounded-lg bg-[#1A1A19] flex items-center justify-center text-[#D6B858] font-black text-xl shadow-sm border border-[#D6B858]/40">
-            R
-          </div>
-          <span>Renew<span className="text-[#D6B858]">U</span></span>
+          <img src="/renewu-logo.png" alt="RenewU Logo" className="h-7 md:h-9 object-contain" />
           <span className="hidden sm:inline-block text-xs font-semibold uppercase tracking-wider bg-[#D6B858]/15 text-[#725c00] px-2.5 py-0.5 rounded-full border border-[#D6B858]/30 ml-1">
             Certificate Portal
           </span>

@@ -108,9 +108,9 @@ export default function App() {
       <footer className="bg-[#1A1A19] text-gray-400 py-10 px-4 md:px-10 border-t-4 border-[#D6B858] mt-12 text-xs">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-white font-extrabold text-xl">
-              <div className="w-7 h-7 bg-[#D6B858] text-[#1A1A19] rounded flex items-center justify-center font-black">R</div>
-              <span>Renew<span className="text-[#D6B858]">U</span></span>
+            <div className="flex items-center gap-2">
+              <img src="/renewu-icon.png" alt="RenewU Icon" className="w-7 h-7 rounded object-contain border border-[#D6B858]/30" />
+              <span className="text-white font-extrabold text-xl">Renew<span className="text-[#D6B858]">U</span></span>
             </div>
             <p className="text-gray-400 text-xs leading-relaxed">
               Renew University - Programa de Certificado en Teología. Formación teológica accesible, rigurosa y conectada con Moodle LMS.
