@@ -1,3 +1,11 @@
+export type LanguageCode = "es" | "en" | "pt-PT" | "pt-BR";
+
+export interface LanguageOption {
+  code: LanguageCode;
+  name: string;
+  flag: string;
+}
+
 export interface StudentEnrollment {
   id: string;
   moodleUsername: string;
@@ -80,4 +88,5 @@ export interface Course {
   bannerBg?: string;
 }
 
-export type ViewMode = "enrollment" | "checkout" | "courses" | "about" | "moodle_admin" | "ai_tutor" | "iframe_mode";
+export type ViewMode = "enrollment" | "checkout" | "courses" | "about" | "moodle_admin" | "ai_tutor" | "iframe_mode" | "cms_editor";
+

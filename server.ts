@@ -66,11 +66,12 @@ interface MoodleConfig {
 }
 
 let moodleConfig: MoodleConfig = {
-  moodleUrl: "https://moodle.renew.edu/webservice/rest/server.php",
+  moodleUrl: "https://campus.renewu-iberia.com/webservice/rest/server.php",
   wsToken: "wstoken_demo_renewu_9876543210",
   autoSyncOnPayment: true,
   defaultCourseId: 101, // Certificado en Teología - Curso 1
 };
+
 
 // Initial pre-loaded sample students for immediate testing in Moodle Dashboard
 let studentDatabase: StudentEnrollment[] = [
@@ -333,10 +334,35 @@ app.get("/api/moodle/export-csv", (_req: Request, res: Response) => {
   res.send(headers + rows);
 });
 
+// In-memory CMS Translations Store
+let customTranslations: any = null;
+
+// GET & POST Translations (CMS Editor)
+app.get("/api/translations", (_req: Request, res: Response) => {
+  res.json({ success: true, translations: customTranslations });
+});
+
+app.post("/api/translations", (req: Request, res: Response) => {
+  customTranslations = req.body.translations;
+  res.json({ success: true, message: "Traducciones actualizadas en el servidor." });
+});
+
+// POST Admin Login Validation
+app.post("/api/admin/login", (req: Request, res: Response) => {
+  const { password } = req.body;
+  const adminPassword = process.env.ADMIN_PASSWORD || "renewu2026admin";
+  if (password === adminPassword) {
+    res.json({ success: true, authenticated: true });
+  } else {
+    res.status(401).json({ success: false, authenticated: false, message: "Contraseña incorrecta" });
+  }
+});
+
 // GET & POST Moodle WebService Settings
 app.get("/api/moodle/config", (_req: Request, res: Response) => {
   res.json({ success: true, config: moodleConfig });
 });
+
 
 app.post("/api/moodle/config", (req: Request, res: Response) => {
   moodleConfig = { ...moodleConfig, ...req.body };
