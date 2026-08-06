@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { User, Church, School, Mail, MapPin, Phone, CheckCircle2, Sparkles, Send } from "lucide-react";
 import { StudentEnrollment } from "../types";
+import { Dictionary } from "../data/translations";
 
 interface EnrollmentFormProps {
   onSubmitSuccess: (student: StudentEnrollment) => void;
+  t: Dictionary;
 }
 
-export const EnrollmentForm: React.FC<EnrollmentFormProps> = ({ onSubmitSuccess }) => {
+export const EnrollmentForm: React.FC<EnrollmentFormProps> = ({ onSubmitSuccess, t }) => {
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",

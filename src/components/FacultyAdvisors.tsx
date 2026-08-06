@@ -1,7 +1,13 @@
 import React from "react";
 import { GraduationCap, Award, BookOpen, Mail } from "lucide-react";
+import { Dictionary } from "../data/translations";
 
-export const FacultyAdvisors: React.FC = () => {
+interface FacultyAdvisorsProps {
+  t?: Dictionary;
+}
+
+export const FacultyAdvisors: React.FC<FacultyAdvisorsProps> = ({ t }) => {
+
   const advisors = [
     {
       name: "Dra. Elena Valenzuela",

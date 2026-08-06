@@ -1,13 +1,18 @@
 import React, { useState } from "react";
 import { Bot, Send, Sparkles, User, RefreshCw, BookOpen, GraduationCap, HelpCircle } from "lucide-react";
 import { ChatMessage } from "../types";
+import { Dictionary } from "../data/translations";
 
-export const AITutorWidget: React.FC = () => {
+interface AITutorWidgetProps {
+  t: Dictionary;
+}
+
+export const AITutorWidget: React.FC<AITutorWidgetProps> = ({ t }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "m-1",
       sender: "bot",
-      text: "¡Paz y bienvenido a Renew University! Soy el Tutor Teológico Inteligente de RenewU. ¿Tienes alguna duda sobre los 12 cursos de nuestro programa, los contenidos teológicos o el proceso de matrícula con Moodle?",
+      text: t.aiGreeting,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -16,11 +21,12 @@ export const AITutorWidget: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const quickPrompts = [
-    "¿Cuáles son los 12 cursos del Certificado en Teología?",
-    "¿Cómo funciona la acreditación y créditos universitarios?",
-    "¿Cómo se sincroniza mi inscripción con el aula Moodle?",
-    "Explícame la diferencia entre Teología Sistemática y Hermenéutica",
+    t.quickPrompt1,
+    t.quickPrompt2,
+    t.quickPrompt3,
+    t.quickPrompt4,
   ];
+
 
   const handleSendMessage = async (textToSend?: string) => {
     const messageText = textToSend || inputMessage;

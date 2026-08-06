@@ -1,16 +1,20 @@
 import React, { useState } from "react";
 import { CheckCircle2, CreditCard, Wallet, Landmark, Lock, ShieldCheck, Award, BookOpen, Headphones, ArrowRight, Sparkles, RefreshCw } from "lucide-react";
 import { StudentEnrollment } from "../types";
+import { Dictionary } from "../data/translations";
 
 interface PaymentCheckoutProps {
   currentStudent: StudentEnrollment | null;
   onPaymentSuccess: (receipt: any) => void;
+  t: Dictionary;
 }
 
 export const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
   currentStudent,
   onPaymentSuccess,
+  t,
 }) => {
+
   const [selectedPlan, setSelectedPlan] = useState<"single_course" | "full_program">("full_program");
   const [paymentMethod, setPaymentMethod] = useState<"cc" | "paypal" | "transfer">("cc");
   const [region, setRegion] = useState("España / Europa");

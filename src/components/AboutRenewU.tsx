@@ -1,12 +1,15 @@
 import React from "react";
 import { ViewMode } from "../types";
+import { Dictionary } from "../data/translations";
 import { GraduationCap, ShieldCheck, Heart, Award, Users, BookOpen, CheckCircle2, Globe, HelpCircle, ArrowRight, ExternalLink } from "lucide-react";
 
 interface AboutRenewUProps {
   onViewChange: (view: ViewMode) => void;
+  t: Dictionary;
 }
 
-export const AboutRenewU: React.FC<AboutRenewUProps> = ({ onViewChange }) => {
+export const AboutRenewU: React.FC<AboutRenewUProps> = ({ onViewChange, t }) => {
+
   const leadershipTeam = [
     {
       name: "Dr. Bobby Harrington",

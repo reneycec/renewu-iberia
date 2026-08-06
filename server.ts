@@ -1,8 +1,10 @@
 import express, { Request, Response } from "express";
 import path from "path";
+import fs from "fs";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
+
 
 dotenv.config();
 
@@ -334,8 +336,19 @@ app.get("/api/moodle/export-csv", (_req: Request, res: Response) => {
   res.send(headers + rows);
 });
 
-// In-memory CMS Translations Store
+// Disk Persistent CMS Translations Store (data/cms_store.json)
+const CMS_STORE_PATH = path.join(process.cwd(), "data", "cms_store.json");
+
 let customTranslations: any = null;
+try {
+  if (fs.existsSync(CMS_STORE_PATH)) {
+    const rawData = fs.readFileSync(CMS_STORE_PATH, "utf-8");
+    customTranslations = JSON.parse(rawData);
+    console.log("CMS translations loaded from data/cms_store.json");
+  }
+} catch (err) {
+  console.error("Error reading cms_store.json:", err);
+}
 
 // GET & POST Translations (CMS Editor)
 app.get("/api/translations", (_req: Request, res: Response) => {
@@ -343,9 +356,20 @@ app.get("/api/translations", (_req: Request, res: Response) => {
 });
 
 app.post("/api/translations", (req: Request, res: Response) => {
-  customTranslations = req.body.translations;
-  res.json({ success: true, message: "Traducciones actualizadas en el servidor." });
+  try {
+    customTranslations = req.body.translations;
+    const dataDir = path.join(process.cwd(), "data");
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    fs.writeFileSync(CMS_STORE_PATH, JSON.stringify(customTranslations, null, 2), "utf-8");
+    res.json({ success: true, message: "Traducciones guardadas exitosamente en data/cms_store.json" });
+  } catch (err: any) {
+    console.error("Error saving cms_store.json:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
+
 
 // POST Admin Login Validation
 app.post("/api/admin/login", (req: Request, res: Response) => {

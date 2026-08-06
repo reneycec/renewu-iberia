@@ -145,25 +145,26 @@ export default function App() {
       {/* Main Content View Switcher */}
       <main className="flex-1 w-full">
         {currentView === "courses" && (
-          <RenewCourses onViewChange={setCurrentView} />
+          <RenewCourses onViewChange={setCurrentView} t={t} />
         )}
 
         {currentView === "about" && (
-          <AboutRenewU onViewChange={setCurrentView} />
+          <AboutRenewU onViewChange={setCurrentView} t={t} />
         )}
 
         {currentView === "enrollment" && (
-          <EnrollmentForm onSubmitSuccess={handleEnrollmentSuccess} />
+          <EnrollmentForm onSubmitSuccess={handleEnrollmentSuccess} t={t} />
         )}
 
         {currentView === "checkout" && (
           <PaymentCheckout
             currentStudent={currentStudent}
             onPaymentSuccess={handlePaymentSuccess}
+            t={t}
           />
         )}
 
-        {currentView === "ai_tutor" && <AITutorWidget />}
+        {currentView === "ai_tutor" && <AITutorWidget t={t} />}
 
         {/* Protected Admin Views */}
         {isAdminAuthenticated && (
@@ -182,8 +183,9 @@ export default function App() {
         )}
 
         {/* Global Faculty Section on Registration View */}
-        {currentView === "enrollment" && <FacultyAdvisors />}
+        {currentView === "enrollment" && <FacultyAdvisors t={t} />}
       </main>
+
 
       {/* Global Footer */}
       <footer className="bg-[#1A1A19] text-gray-400 py-10 px-4 md:px-10 border-t-4 border-[#D6B858] mt-12 text-xs">

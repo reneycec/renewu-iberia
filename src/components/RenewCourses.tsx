@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { Course, ViewMode } from "../types";
+import { Dictionary } from "../data/translations";
 import { getStoredCourses } from "../data/coursesData";
-import { BookOpen, Calendar, Clock, Award, CheckCircle2, ChevronRight, UserCheck, Shield, Sparkles, Filter, Info, ArrowRight, DollarSign, Database } from "lucide-react";
+import { BookOpen, Calendar, Clock, Award, CheckCircle2, ChevronRight, UserCheck, Shield, Sparkles, Filter, Info, ArrowRight, DollarSign, Database, X } from "lucide-react";
 
 interface RenewCoursesProps {
   onSelectCourseForEnrollment?: (course: Course) => void;
   onViewChange: (view: ViewMode) => void;
+  t: Dictionary;
 }
 
 export const RenewCourses: React.FC<RenewCoursesProps> = ({
   onSelectCourseForEnrollment,
   onViewChange,
+  t,
 }) => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("Todos");
@@ -21,12 +24,13 @@ export const RenewCourses: React.FC<RenewCoursesProps> = ({
   }, []);
 
   const categories = [
-    "Todos",
-    "Estudios Bíblicos",
-    "Teología Sistemática",
-    "Ministerio Práctico",
-    "Historia y Apologética",
+    { label: t.categoryAll, value: "Todos" },
+    { label: t.categoryBiblical, value: "Estudios Bíblicos" },
+    { label: t.categorySystematic, value: "Teología Sistemática" },
+    { label: t.categoryPractical, value: "Ministerio Práctico" },
+    { label: t.categoryHistory, value: "Historia y Apologética" },
   ];
+
 
   const filteredCourses = selectedCategory === "Todos"
     ? courses
@@ -88,18 +92,19 @@ export const RenewCourses: React.FC<RenewCoursesProps> = ({
         <div className="flex flex-wrap gap-2">
           {categories.map((cat) => (
             <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
+              key={cat.value}
+              onClick={() => setSelectedCategory(cat.value)}
               className={`px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition-all cursor-pointer ${
-                selectedCategory === cat
+                selectedCategory === cat.value
                   ? "bg-[#1A1A19] text-[#D6B858] shadow-sm font-bold"
                   : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
               }`}
             >
-              {cat}
+              {cat.label}
             </button>
           ))}
         </div>
+
       </div>
 
       {/* Course Cards Grid */}
