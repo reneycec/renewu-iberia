@@ -32,6 +32,7 @@ export const TextCMSEditor: React.FC<TextCMSEditorProps> = ({
     { id: "form", label: "Formulario de Inscripción", icon: FileText },
     { id: "checkout", label: "Pasarela de Pago", icon: CreditCard },
     { id: "ai", label: "Tutor Teológico IA", icon: Bot },
+    { id: "footer", label: "Pie de Página & Contacto / RRSS", icon: GraduationCap },
   ];
 
   const isKeyInCategory = (key: string, categoryId: string) => {
@@ -42,8 +43,10 @@ export const TextCMSEditor: React.FC<TextCMSEditorProps> = ({
     if (categoryId === "form") return key.startsWith("form") || key.includes("Label") || key.startsWith("personal") || key.startsWith("church") || key.startsWith("academic");
     if (categoryId === "checkout") return key.startsWith("checkout") || key.startsWith("plan") || key.startsWith("card") || key.startsWith("pay");
     if (categoryId === "ai") return key.startsWith("ai") || key.startsWith("quick");
+    if (categoryId === "footer") return key.startsWith("footer");
     return true;
   };
+
 
   const filteredKeys = keys.filter((key) => {
     const matchesCategory = isKeyInCategory(key, selectedCategory);

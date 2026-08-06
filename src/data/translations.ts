@@ -110,7 +110,16 @@ export interface Dictionary {
   quickPrompt2: string;
   quickPrompt3: string;
   quickPrompt4: string;
+
+  // Footer Contact & Social Media
+  footerContactTitle: string;
+  footerEmail: string;
+  footerPhone: string;
+  footerAddress: string;
+  footerSocialTitle: string;
+  footerHours: string;
 }
+
 
 export const defaultTranslations: Record<LanguageCode, Dictionary> = {
   es: {
@@ -209,7 +218,15 @@ export const defaultTranslations: Record<LanguageCode, Dictionary> = {
     quickPrompt2: "¿Cómo funciona la acreditación y créditos universitarios?",
     quickPrompt3: "¿Cómo se sincroniza mi inscripción con el aula Moodle?",
     quickPrompt4: "Explícame la diferencia entre Teología Sistemática y Hermenéutica",
+
+    footerContactTitle: "Contacto & Soporte Académico",
+    footerEmail: "info@renewu-iberia.com",
+    footerPhone: "+34 910 000 000 / +34 612 345 678",
+    footerAddress: "Campus Virtual & Sede Iberia, Madrid, España",
+    footerSocialTitle: "Síguenos en Redes Sociales",
+    footerHours: "Atención: Lunes a Viernes (9:00 - 18:00 CET)",
   },
+
   en: {
     navCourses: "Courses",
     navAbout: "About Us",
@@ -306,7 +323,15 @@ export const defaultTranslations: Record<LanguageCode, Dictionary> = {
     quickPrompt2: "How does accreditation and college credit work?",
     quickPrompt3: "How is my registration synced with Moodle?",
     quickPrompt4: "Explain the difference between Systematic Theology and Hermeneutics",
+
+    footerContactTitle: "Contact & Academic Support",
+    footerEmail: "info@renewu-iberia.com",
+    footerPhone: "+34 910 000 000 / +34 612 345 678",
+    footerAddress: "Virtual Campus & Iberian HQ, Madrid, Spain",
+    footerSocialTitle: "Follow Us on Social Media",
+    footerHours: "Office Hours: Mon - Fri (9:00 - 18:00 CET)",
   },
+
   "pt-PT": {
     navCourses: "Cursos",
     navAbout: "Sobre Nós",
@@ -396,13 +421,17 @@ export const defaultTranslations: Record<LanguageCode, Dictionary> = {
 
     aiTutorTitle: "Tutor Teológico Inteligente RenewU",
     aiTutorSubtitle: "Apoio académico, dúvidas sobre cursos e acreditação Moodle com tecnologia Gemini AI.",
-    aiGreeting: "Bem-vindo à Renew University! Sou o Tutor Teológico Inteligente da RenewU. Em que posso ajudar relativamente aos 12 cursos ou à plataforma Moodle?",
-    aiPlaceholder: "Escreva a sua dúvida académica ou teológica...",
-    aiSendBtn: "Enviar",
-    quickPrompt1: "Quais são os 12 cursos do Certificado em Teologia?",
+    aiGreeting: "Bem-    quickPrompt1: "Quais são os 12 cursos do Certificado em Teologia?",
     quickPrompt2: "Como funciona a acreditação e créditos universitários?",
     quickPrompt3: "Como é sincronizada a minha inscrição com o Moodle?",
     quickPrompt4: "Explique a diferença entre Teologia Sistemática e Hermenêutica",
+
+    footerContactTitle: "Contacto & Suporte Académico",
+    footerEmail: "info@renewu-iberia.com",
+    footerPhone: "+34 910 000 000 / +34 612 345 678",
+    footerAddress: "Campus Virtual & Sede Peninsular, Madrid, Espanha",
+    footerSocialTitle: "Siga-nos nas Redes Sociais",
+    footerHours: "Atendimento: Segunda a Sexta (9:00 - 18:00 CET)",
   },
   "pt-BR": {
     navCourses: "Cursos",
@@ -424,7 +453,7 @@ export const defaultTranslations: Record<LanguageCode, Dictionary> = {
     heroSubtitle: "Formação teológica rigorosa, acessível e 100% conectada à plataforma Moodle LMS (campus.renewu-iberia.com).",
     btnExploreCourses: "Explorar 12 Cursos",
     btnStartRegistration: "Iniciar Matrícula",
-    coursesTitle: "Catálogo Acadêmico de 12 Cursos",
+    coursesTitle: "Catálogo Académico de 12 Cursos",
     coursesSubtitle: "Cursos de 6 semanas desenvolvidos para líderes eclesiásticos, pastores e estudantes de teologia.",
     singleCoursePrice: "Curso Individual ($59 USD)",
     fullProgramPrice: "Programa Completo ($709 USD)",
@@ -460,7 +489,7 @@ export const defaultTranslations: Record<LanguageCode, Dictionary> = {
     facultyTitle: "Corpo Docente e Conselheiros Acadêmicos",
     facultySubtitle: "Instrutores que combinam rigor teológico com compromisso pastoral.",
 
-    formTitle: "Ficha de Matrícula Acadêmica",
+    formTitle: "Ficha de Matrícula Académica",
     formSubtitle: "Preencha seus dados para registrar seu cadastro e sincronizar seu usuário no Moodle.",
     personalDataTitle: "Dados Pessoais",
     churchDataTitle: "Informações Eclesiásticas e Ministeriais",
@@ -500,5 +529,12 @@ export const defaultTranslations: Record<LanguageCode, Dictionary> = {
     quickPrompt2: "Como funciona a acreditação e créditos universitários?",
     quickPrompt3: "Como minha matrícula é sincronizada com o Moodle?",
     quickPrompt4: "Explique a diferença entre Teologia Sistemática e Hermenêutica",
+
+    footerContactTitle: "Contato & Suporte Acadêmico",
+    footerEmail: "info@renewu-iberia.com",
+    footerPhone: "+34 910 000 000 / +34 612 345 678",
+    footerAddress: "Campus Virtual & Sede Iberia, Madri, Espanha",
+    footerSocialTitle: "Siga-nos nas Redes Sociais",
+    footerHours: "Atendimento: Segunda a Sexta (9:00 - 18:00 CET)",
   },
 };

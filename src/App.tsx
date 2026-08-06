@@ -11,7 +11,8 @@ import { AboutRenewU } from "./components/AboutRenewU";
 import { TextCMSEditor } from "./components/TextCMSEditor";
 import { StudentEnrollment, ViewMode, LanguageCode } from "./types";
 import { defaultTranslations, Dictionary } from "./data/translations";
-import { GraduationCap, ArrowRight, Sparkles, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { GraduationCap, ArrowRight, Sparkles, ShieldCheck, CheckCircle2, Mail, Phone, MapPin, Clock, Globe, Share2, Facebook, Instagram, Youtube, Twitter, Linkedin } from "lucide-react";
+
 
 export default function App() {
   const [currentView, setCurrentView] = useState<ViewMode>("courses");
@@ -188,80 +189,165 @@ export default function App() {
 
 
       {/* Global Footer */}
-      <footer className="bg-[#1A1A19] text-gray-400 py-10 px-4 md:px-10 border-t-4 border-[#D6B858] mt-12 text-xs">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="space-y-3">
+      <footer className="bg-[#1A1A19] text-gray-400 py-12 px-4 md:px-10 border-t-4 border-[#D6B858] mt-16 text-xs">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+          
+          {/* Col 1: Brand & Social Media */}
+          <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <img src="/renewu-icon.png" alt="RenewU Icon" className="w-7 h-7 rounded object-contain border border-[#D6B858]/30" />
-              <span className="text-white font-extrabold text-xl">Renew<span className="text-[#D6B858]">U</span></span>
+              <img src="/renewu-icon.png" alt="RenewU Icon" className="w-8 h-8 rounded object-contain border border-[#D6B858]/40" />
+              <span className="text-white font-extrabold text-2xl tracking-tight">Renew<span className="text-[#D6B858]">U</span></span>
             </div>
             <p className="text-gray-400 text-xs leading-relaxed">
               Renew University - Programa de Certificado en Teología. Formación teológica accesible, rigurosa y conectada con Moodle LMS (campus.renewu-iberia.com).
             </p>
+
+            {/* Social Media Links (RRSS) */}
+            <div className="space-y-2 pt-2">
+              <span className="text-[11px] font-bold text-[#D6B858] uppercase tracking-wider block">
+                {t.footerSocialTitle || "Síguenos en Redes Sociales"}
+              </span>
+              <div className="flex items-center gap-2.5 text-gray-300">
+                <a href="https://facebook.com" target="_blank" rel="noreferrer" className="w-8 h-8 rounded-full bg-gray-800 hover:bg-[#D6B858] hover:text-[#1A1A19] flex items-center justify-center transition-all shadow-xs" title="Facebook">
+                  <Facebook className="w-4 h-4" />
+                </a>
+                <a href="https://instagram.com" target="_blank" rel="noreferrer" className="w-8 h-8 rounded-full bg-gray-800 hover:bg-[#D6B858] hover:text-[#1A1A19] flex items-center justify-center transition-all shadow-xs" title="Instagram">
+                  <Instagram className="w-4 h-4" />
+                </a>
+                <a href="https://youtube.com" target="_blank" rel="noreferrer" className="w-8 h-8 rounded-full bg-gray-800 hover:bg-[#D6B858] hover:text-[#1A1A19] flex items-center justify-center transition-all shadow-xs" title="YouTube">
+                  <Youtube className="w-4 h-4" />
+                </a>
+                <a href="https://twitter.com" target="_blank" rel="noreferrer" className="w-8 h-8 rounded-full bg-gray-800 hover:bg-[#D6B858] hover:text-[#1A1A19] flex items-center justify-center transition-all shadow-xs" title="Twitter / X">
+                  <Twitter className="w-4 h-4" />
+                </a>
+                <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="w-8 h-8 rounded-full bg-gray-800 hover:bg-[#D6B858] hover:text-[#1A1A19] flex items-center justify-center transition-all shadow-xs" title="LinkedIn">
+                  <Linkedin className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <h4 className="font-bold text-white text-sm mb-3">Accesos Rápidos</h4>
+          {/* Col 2: Direct Contact Details */}
+          <div className="space-y-3">
+            <h4 className="font-bold text-white text-sm mb-3 border-b border-gray-800 pb-2 flex items-center gap-2">
+              <Mail className="w-4 h-4 text-[#D6B858]" />
+              <span>{t.footerContactTitle || "Contacto & Soporte Académico"}</span>
+            </h4>
+            <ul className="space-y-2.5 text-xs text-gray-300">
+              <li className="flex items-start gap-2.5">
+                <Mail className="w-4 h-4 text-[#D6B858] shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-gray-400 block text-[10px]">Correo Electrónico:</span>
+                  <a href={`mailto:${t.footerEmail || 'info@renewu-iberia.com'}`} className="hover:text-white font-medium text-[#D6B858]">
+                    {t.footerEmail || "info@renewu-iberia.com"}
+                  </a>
+                </div>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <Phone className="w-4 h-4 text-[#D6B858] shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-gray-400 block text-[10px]">Teléfono / WhatsApp:</span>
+                  <a href={`https://wa.me/34612345678`} target="_blank" rel="noreferrer" className="hover:text-white font-medium">
+                    {t.footerPhone || "+34 910 000 000 / +34 612 345 678"}
+                  </a>
+                </div>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <MapPin className="w-4 h-4 text-[#D6B858] shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-gray-400 block text-[10px]">Ubicación & Sede:</span>
+                  <span>{t.footerAddress || "Campus Virtual & Sede Iberia, Madrid, España"}</span>
+                </div>
+              </li>
+              <li className="flex items-start gap-2.5 pt-1">
+                <Clock className="w-4 h-4 text-[#D6B858] shrink-0 mt-0.5" />
+                <span className="text-gray-400 text-[11px]">{t.footerHours || "Atención: Lun - Vie (9:00 - 18:00 CET)"}</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Col 3: Navigation Links */}
+          <div className="space-y-3">
+            <h4 className="font-bold text-white text-sm mb-3 border-b border-gray-800 pb-2">Accesos Rápidos</h4>
             <ul className="space-y-2">
               <li>
-                <button onClick={() => setCurrentView("courses")} className="hover:text-[#D6B858] transition-colors">
-                  Catálogo de 12 Cursos
+                <button onClick={() => setCurrentView("courses")} className="hover:text-[#D6B858] transition-colors flex items-center gap-1">
+                  <span>›</span> {t.navCourses} (12 Cursos)
                 </button>
               </li>
               <li>
-                <button onClick={() => setCurrentView("about")} className="hover:text-[#D6B858] transition-colors">
-                  Acerca de Renew University
+                <button onClick={() => setCurrentView("about")} className="hover:text-[#D6B858] transition-colors flex items-center gap-1">
+                  <span>›</span> {t.navAbout}
                 </button>
               </li>
               <li>
-                <button onClick={() => setCurrentView("enrollment")} className="hover:text-[#D6B858] transition-colors">
-                  Solicitud de Inscripción
+                <button onClick={() => setCurrentView("enrollment")} className="hover:text-[#D6B858] transition-colors flex items-center gap-1">
+                  <span>›</span> {t.navEnrollment}
                 </button>
               </li>
               <li>
-                <button onClick={() => setCurrentView("checkout")} className="hover:text-[#D6B858] transition-colors">
-                  Pago de Matrícula ($59 / $709)
+                <button onClick={() => setCurrentView("checkout")} className="hover:text-[#D6B858] transition-colors flex items-center gap-1">
+                  <span>›</span> {t.navPayment} ($59 / $709)
+                </button>
+              </li>
+              <li>
+                <button onClick={() => setCurrentView("ai_tutor")} className="hover:text-[#D6B858] transition-colors flex items-center gap-1">
+                  <span>›</span> {t.navAITutor}
                 </button>
               </li>
               {isAdminAuthenticated && (
                 <li>
-                  <button onClick={() => setCurrentView("moodle_admin")} className="hover:text-[#D6B858] transition-colors font-bold text-[#D6B858]">
-                    Panel de Administración Moodle
+                  <button onClick={() => setCurrentView("cms_editor")} className="hover:text-[#D6B858] transition-colors font-bold text-[#D6B858] flex items-center gap-1">
+                    <span>›</span> Editor CMS (Traducciones)
                   </button>
                 </li>
               )}
             </ul>
           </div>
 
-          <div>
-            <h4 className="font-bold text-white text-sm mb-3">Integración Moodle & API</h4>
-            <ul className="space-y-2">
-              <li className="font-mono text-[11px] text-[#D6B858]">core_user_create_users</li>
-              <li className="font-mono text-[11px] text-[#D6B858]">enrol_manual_enrol_users</li>
-              <li className="font-mono text-[11px] text-[#D6B858]">POST /api/moodle/sync</li>
-              <li className="font-mono text-[11px] text-[#D6B858]">POST /api/llm/chat</li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-white text-sm mb-3">Seguridad y Garantía</h4>
-            <p className="text-gray-400 text-xs leading-relaxed">
-              Pagos cifrados mediante encriptación SSL de 256 bits y pasarela multirregión Stripe. Cumplimiento con estándares académicos Moodle REST (campus.renewu-iberia.com).
+          {/* Col 4: Campus Virtual & Security */}
+          <div className="space-y-3">
+            <h4 className="font-bold text-white text-sm mb-3 border-b border-gray-800 pb-2 flex items-center gap-2">
+              <Globe className="w-4 h-4 text-[#D6B858]" />
+              <span>Campus Virtual & Seguridad</span>
+            </h4>
+            <div className="bg-gray-900 border border-gray-800 p-3.5 rounded-lg space-y-2">
+              <span className="text-white font-bold text-xs block">Moodle LMS En Vivo</span>
+              <p className="text-[11px] text-gray-400 leading-relaxed">
+                Campus alojado en <a href="https://campus.renewu-iberia.com" target="_blank" rel="noreferrer" className="text-[#D6B858] underline">campus.renewu-iberia.com</a>. Sincronización automática de matrículas vía API REST.
+              </p>
+              <div className="pt-1">
+                <a
+                  href="https://campus.renewu-iberia.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="bg-[#D6B858] hover:bg-[#c3a447] text-[#1A1A19] font-bold text-[11px] px-3 py-1.5 rounded inline-block transition-all"
+                >
+                  Entrar al Aula Virtual
+                </a>
+              </div>
+            </div>
+            <p className="text-[11px] text-gray-500 leading-relaxed">
+              Pagos encriptados con tecnología SSL 256-bit y pasarela Stripe.
             </p>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto border-t border-gray-800 mt-8 pt-6 flex flex-col sm:flex-row justify-between items-center text-gray-500">
+        {/* Footer Bottom Bar */}
+        <div className="max-w-7xl mx-auto border-t border-gray-800 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center text-gray-500 gap-4">
           <p>© 2026 Renew University (renewu-iberia.com). Todos los derechos reservados.</p>
-          <div className="flex gap-4 mt-2 sm:mt-0">
-            <a href="#" className="hover:text-white">Privacidad</a>
-            <a href="#" className="hover:text-white">Términos</a>
-            <a href="https://campus.renewu-iberia.com" target="_blank" rel="noreferrer" className="hover:text-[#D6B858]">Campus Moodle Virtual</a>
+          <div className="flex items-center gap-4 text-[11px]">
+            <a href="#" className="hover:text-white">Política de Privacidad</a>
+            <span>•</span>
+            <a href="#" className="hover:text-white">Términos de Servicio</a>
+            <span>•</span>
+            <a href="https://campus.renewu-iberia.com" target="_blank" rel="noreferrer" className="hover:text-[#D6B858]">Soporte Moodle</a>
           </div>
         </div>
       </footer>
     </div>
   );
 }
+
 
 
