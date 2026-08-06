@@ -421,7 +421,11 @@ export const defaultTranslations: Record<LanguageCode, Dictionary> = {
 
     aiTutorTitle: "Tutor Teológico Inteligente RenewU",
     aiTutorSubtitle: "Apoio académico, dúvidas sobre cursos e acreditação Moodle com tecnologia Gemini AI.",
-    aiGreeting: "Bem-    quickPrompt1: "Quais são os 12 cursos do Certificado em Teologia?",
+    aiGreeting: "Bem-vindo! Como posso ajudar?",
+    aiPlaceholder: "Escreva a sua dúvida académica ou teológica...",
+    aiSendBtn: "Enviar",
+    quickPrompt1: "Quais são os 12 cursos do Certificado em Teologia?",
+
     quickPrompt2: "Como funciona a acreditação e créditos universitários?",
     quickPrompt3: "Como é sincronizada a minha inscrição com o Moodle?",
     quickPrompt4: "Explique a diferença entre Teologia Sistemática e Hermenêutica",
@@ -433,6 +437,7 @@ export const defaultTranslations: Record<LanguageCode, Dictionary> = {
     footerSocialTitle: "Siga-nos nas Redes Sociais",
     footerHours: "Atendimento: Segunda a Sexta (9:00 - 18:00 CET)",
   },
+
   "pt-BR": {
     navCourses: "Cursos",
     navAbout: "Sobre Nós",
