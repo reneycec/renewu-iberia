@@ -301,6 +301,20 @@ export function saveStoredCourses(courses: Course[]) {
   }
 }
 
+export function updateCoursePrice(courseId: string, newPrice: number): Course[] {
+  const current = getStoredCourses();
+  const updated = current.map((c) => (c.id === courseId ? { ...c, priceSingle: newPrice } : c));
+  saveStoredCourses(updated);
+  return updated;
+}
+
+export function updateAllCoursePrices(newPrice: number): Course[] {
+  const current = getStoredCourses();
+  const updated = current.map((c) => ({ ...c, priceSingle: newPrice }));
+  saveStoredCourses(updated);
+  return updated;
+}
+
 export function resetStoredCourses(): Course[] {
   try {
     localStorage.removeItem(STORAGE_KEY);

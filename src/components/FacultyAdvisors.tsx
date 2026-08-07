@@ -10,22 +10,22 @@ export const FacultyAdvisors: React.FC<FacultyAdvisorsProps> = ({ t }) => {
 
   const advisors = [
     {
-      name: "Dra. Elena Valenzuela",
-      role: "Decana de Estudios Teológicos",
-      bio: "Doctora en Teología Histórica por el Seminario Teológico. Autora de 4 libros sobre hermenéutica y liderazgo eclesial.",
-      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80",
+      name: "Dr. Bobby Harrington",
+      role: "Fundador RENEW.org & Director",
+      bio: "Doctor en Ministerio por Southern Baptist Theological Seminary. Pastor principal y autor de más de 12 libros de discipulado.",
+      avatar: "https://renewuniversity.org/wp-content/uploads/2025/04/Bobby-Harrington-Headshot.jpg",
     },
     {
-      name: "Dr. Roberto Mendoza",
-      role: "Profesor de Soteriología e Historia",
-      bio: "Especialista en Historia del Cristianismo Global y Teología Sistemática con más de 18 años de cátedra universitaria.",
-      avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&auto=format&fit=crop&q=80",
+      name: "Dr. David Young",
+      role: "Decano de Estudios Teológicos",
+      bio: "Doctor en Teología y Nuevo Testamento por Vanderbilt University. Pastor principal en North Boulevard Church durante 26 años.",
+      avatar: "https://renewuniversity.org/wp-content/uploads/2025/04/David-Young-Headshot.jpg",
     },
     {
-      name: "Mtra. Sofía Benítez",
-      role: "Coordinadora de Estudiantes y Moodle",
-      bio: "Master en Pedagogía Universitaria y Tecnología Educativa. Encargada del acompañamiento tutorial en la plataforma Moodle.",
-      avatar: "https://images.unsplash.com/photo-1580894732413-8012643a6d45?w=400&auto=format&fit=crop&q=80",
+      name: "Dr. Orpheus J. Heyward",
+      role: "Catedrático de Exposición Bíblica",
+      bio: "Ph.D. en Exposición Bíblica y Doctor en Exégesis Teológica. Profesor en Lipscomb University y ministro en Atlanta, GA.",
+      avatar: "https://renewuniversity.org/wp-content/uploads/2025/04/Orpheus-Heyward-Headshot.jpg",
     }
   ];
 

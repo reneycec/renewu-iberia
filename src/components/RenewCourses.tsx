@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Course, ViewMode } from "../types";
 import { Dictionary } from "../data/translations";
-import { getStoredCourses } from "../data/coursesData";
-import { BookOpen, Calendar, Clock, Award, CheckCircle2, ChevronRight, UserCheck, Shield, Sparkles, Filter, Info, ArrowRight, DollarSign, Database, X } from "lucide-react";
+import { getStoredCourses, updateCoursePrice, updateAllCoursePrices, resetStoredCourses } from "../data/coursesData";
+import { BookOpen, Calendar, Clock, Award, CheckCircle2, ChevronRight, UserCheck, Shield, Sparkles, Filter, Info, ArrowRight, DollarSign, Database, X, Settings, Edit3, RotateCcw, Check } from "lucide-react";
 
 interface RenewCoursesProps {
   onSelectCourseForEnrollment?: (course: Course) => void;
@@ -19,8 +19,20 @@ export const RenewCourses: React.FC<RenewCoursesProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>("Todos");
   const [selectedCourseForModal, setSelectedCourseForModal] = useState<Course | null>(null);
 
+  // Course Price Management State
+  const [isPriceEditorOpen, setIsPriceEditorOpen] = useState(false);
+  const [editingPriceMap, setEditingPriceMap] = useState<Record<string, number>>({});
+  const [bulkPriceValue, setBulkPriceValue] = useState<string>("59");
+  const [priceSaveSuccess, setPriceSaveSuccess] = useState(false);
+
   useEffect(() => {
-    setCourses(getStoredCourses());
+    const stored = getStoredCourses();
+    setCourses(stored);
+    const initialMap: Record<string, number> = {};
+    stored.forEach((c) => {
+      initialMap[c.id] = c.priceSingle;
+    });
+    setEditingPriceMap(initialMap);
   }, []);
 
   const categories = [
@@ -41,6 +53,45 @@ export const RenewCourses: React.FC<RenewCoursesProps> = ({
       onSelectCourseForEnrollment(course);
     }
     onViewChange("enrollment");
+  };
+
+  const handleSavePriceMap = () => {
+    let updated = [...courses];
+    Object.entries(editingPriceMap).forEach(([cId, price]) => {
+      updated = updateCoursePrice(cId, price);
+    });
+    setCourses(updated);
+    setPriceSaveSuccess(true);
+    setTimeout(() => setPriceSaveSuccess(false), 3000);
+  };
+
+  const handleApplyBulkPrice = () => {
+    const num = parseFloat(bulkPriceValue);
+    if (!isNaN(num) && num >= 0) {
+      const updated = updateAllCoursePrices(num);
+      setCourses(updated);
+      const newMap: Record<string, number> = {};
+      updated.forEach((c) => {
+        newMap[c.id] = c.priceSingle;
+      });
+      setEditingPriceMap(newMap);
+      setPriceSaveSuccess(true);
+      setTimeout(() => setPriceSaveSuccess(false), 3000);
+    }
+  };
+
+  const handleResetDefaultPrices = () => {
+    if (window.confirm("¿Deseas restaurar el precio predeterminado de $59 USD para todos los cursos?")) {
+      const restored = resetStoredCourses();
+      setCourses(restored);
+      const newMap: Record<string, number> = {};
+      restored.forEach((c) => {
+        newMap[c.id] = c.priceSingle;
+      });
+      setEditingPriceMap(newMap);
+      setPriceSaveSuccess(true);
+      setTimeout(() => setPriceSaveSuccess(false), 3000);
+    }
   };
 
   return (
@@ -76,20 +127,20 @@ export const RenewCourses: React.FC<RenewCoursesProps> = ({
             </div>
             <div className="flex items-center gap-2">
               <DollarSign className="w-4 h-4 text-[#D6B858]" />
-              <span>$59 por curso / $709 Programa Completo</span>
+              <span>Precio Dinámico por curso / $709 Programa Completo</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Filter Tabs */}
+      {/* Filter Tabs & Price Management Action */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 pb-4">
         <div className="flex items-center gap-2 text-[#725c00] font-bold text-sm">
           <Filter className="w-4 h-4" />
           <span>Filtrar Cursos por Categoría:</span>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {categories.map((cat) => (
             <button
               key={cat.value}
@@ -103,8 +154,16 @@ export const RenewCourses: React.FC<RenewCoursesProps> = ({
               {cat.label}
             </button>
           ))}
-        </div>
 
+          <button
+            onClick={() => setIsPriceEditorOpen(true)}
+            className="bg-[#D6B858] hover:bg-[#c3a447] text-[#1A1A19] font-extrabold text-xs px-3.5 py-2 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-xs ml-auto md:ml-2"
+            title="Ajustar tarifas y precios individuales o masivos"
+          >
+            <Settings className="w-4 h-4" />
+            <span>⚙️ Cambiar Precios de Cursos</span>
+          </button>
+        </div>
       </div>
 
       {/* Course Cards Grid */}
@@ -287,9 +346,127 @@ export const RenewCourses: React.FC<RenewCoursesProps> = ({
                 }}
                 className="px-5 py-2 text-xs font-black text-[#1A1A19] bg-[#D6B858] hover:bg-[#c3a447] rounded-lg shadow-xs flex items-center gap-1.5 cursor-pointer"
               >
-                <span>Proceder a Inscripción ({courseToEnroll => `$${courseToEnroll.priceSingle}`})</span>
+                <span>Proceder a Inscripción (${selectedCourseForModal.priceSingle})</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Course Price Management Modal */}
+      {isPriceEditorOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 space-y-6 border border-[#D6B858] shadow-2xl animate-scale-up">
+            <div className="flex justify-between items-start border-b border-gray-200 pb-4">
+              <div>
+                <div className="inline-flex items-center gap-1.5 bg-[#D6B858]/20 text-[#725c00] text-xs font-bold px-2.5 py-0.5 rounded-full mb-1">
+                  <Settings className="w-3.5 h-3.5" />
+                  <span>Gestor Administrativo de Precios</span>
+                </div>
+                <h3 className="text-2xl font-black text-[#1A1A19]">Cambiar Precio de Cursos (USD)</h3>
+                <p className="text-xs text-gray-500 mt-1">
+                  Ajusta la tarifa individual de cada materia o aplica un costo masivo para todo el catálogo de 12 cursos.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsPriceEditorOpen(false)}
+                className="text-gray-400 hover:text-gray-800 text-xl font-bold p-1 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Quick Bulk Price Tool */}
+            <div className="bg-amber-50/80 border border-amber-200 p-4 rounded-xl space-y-3">
+              <span className="text-xs font-bold text-[#725c00] uppercase tracking-wider block">
+                ⚡ Cambio de Precio Masivo (Todos los Cursos)
+              </span>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="relative">
+                  <span className="absolute left-3 top-2.5 text-xs text-gray-500 font-bold">$</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={bulkPriceValue}
+                    onChange={(e) => setBulkPriceValue(e.target.value)}
+                    className="w-32 text-xs border border-gray-300 rounded-lg pl-7 pr-3 py-2 focus:border-[#D6B858] outline-none font-bold text-gray-900"
+                  />
+                </div>
+                <button
+                  onClick={handleApplyBulkPrice}
+                  className="bg-[#1A1A19] hover:bg-black text-[#D6B858] font-bold text-xs px-4 py-2 rounded-lg transition-all cursor-pointer"
+                >
+                  Aplicar a los 12 Cursos
+                </button>
+                <button
+                  onClick={handleResetDefaultPrices}
+                  className="text-xs text-gray-600 hover:text-red-700 underline font-semibold flex items-center gap-1 ml-auto"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  Restaurar $59 Predeterminado
+                </button>
+              </div>
+            </div>
+
+            {/* Individual Course Price Table */}
+            <div className="space-y-3">
+              <span className="text-xs font-bold text-gray-700 uppercase tracking-wider block">
+                📋 Tarifas Individuales por Materia
+              </span>
+              <div className="border border-gray-200 rounded-xl overflow-hidden divide-y divide-gray-100 max-h-72 overflow-y-auto">
+                {courses.map((course) => (
+                  <div key={course.id} className="p-3 grid grid-cols-12 items-center gap-3 hover:bg-gray-50 text-xs">
+                    <div className="col-span-3 font-mono font-bold text-[#725c00]">
+                      <span className="bg-[#D6B858]/20 px-2 py-0.5 rounded">{course.code}</span>
+                    </div>
+                    <div className="col-span-6 font-semibold text-gray-800 truncate" title={course.title}>
+                      {course.title}
+                    </div>
+                    <div className="col-span-3 flex items-center gap-1 justify-end">
+                      <span className="text-gray-500 font-bold">$</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={editingPriceMap[course.id] ?? course.priceSingle}
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value) || 0;
+                          setEditingPriceMap((prev) => ({ ...prev, [course.id]: val }));
+                        }}
+                        className="w-20 border border-gray-300 rounded px-2 py-1 text-xs font-bold text-gray-900 focus:border-[#D6B858] outline-none"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Footer buttons */}
+            <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+              <div>
+                {priceSaveSuccess && (
+                  <span className="text-xs font-bold text-emerald-700 flex items-center gap-1 animate-fadeIn">
+                    <Check className="w-4 h-4 text-emerald-600" />
+                    ¡Precios actualizados y guardados correctamente!
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setIsPriceEditorOpen(false)}
+                  className="px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-lg cursor-pointer"
+                >
+                  Cerrar
+                </button>
+                <button
+                  onClick={handleSavePriceMap}
+                  className="px-5 py-2 text-xs font-black text-[#1A1A19] bg-[#D6B858] hover:bg-[#c3a447] rounded-lg shadow-sm flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Guardar Tarifas Actualizadas</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
