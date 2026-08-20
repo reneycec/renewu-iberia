@@ -88,5 +88,18 @@ export interface Course {
   bannerBg?: string;
 }
 
+export interface FacultyMember {
+  id: string;
+  name: string;
+  role: string;
+  specialty: string;
+  bioEs: string;
+  bioEn: string;
+  image: string;
+  externalLink?: string;
+  coursesTaught?: string[];
+  email?: string;
+}
+
 export type ViewMode = "enrollment" | "checkout" | "courses" | "about" | "moodle_admin" | "ai_tutor" | "iframe_mode" | "cms_editor";
 

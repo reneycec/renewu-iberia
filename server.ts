@@ -370,6 +370,46 @@ app.post("/api/translations", (req: Request, res: Response) => {
   }
 });
 
+// GET & POST Faculty Members (CMS & Data Sync)
+let customFaculty: any = null;
+
+app.get("/api/faculty", (_req: Request, res: Response) => {
+  try {
+    if (fs.existsSync(CMS_STORE_PATH)) {
+      const rawData = fs.readFileSync(CMS_STORE_PATH, "utf-8");
+      const store = JSON.parse(rawData);
+      if (store && store.faculty) {
+        customFaculty = store.faculty;
+      }
+    }
+  } catch (err) {
+    console.error("Error reading faculty from cms_store.json:", err);
+  }
+  res.json({ success: true, faculty: customFaculty });
+});
+
+app.post("/api/faculty", (req: Request, res: Response) => {
+  try {
+    customFaculty = req.body.faculty;
+    let existingData: any = {};
+    if (fs.existsSync(CMS_STORE_PATH)) {
+      try {
+        existingData = JSON.parse(fs.readFileSync(CMS_STORE_PATH, "utf-8"));
+      } catch (e) {}
+    }
+    existingData.faculty = customFaculty;
+    const dataDir = path.join(process.cwd(), "data");
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    fs.writeFileSync(CMS_STORE_PATH, JSON.stringify(existingData, null, 2), "utf-8");
+    res.json({ success: true, message: "Datos de profesores guardados en data/cms_store.json" });
+  } catch (err: any) {
+    console.error("Error saving faculty data:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 
 // POST Admin Login Validation
 app.post("/api/admin/login", (req: Request, res: Response) => {

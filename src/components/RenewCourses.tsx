@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Course, ViewMode } from "../types";
+import { Course, ViewMode, FacultyMember } from "../types";
 import { Dictionary } from "../data/translations";
 import { getStoredCourses, updateCoursePrice, updateAllCoursePrices, resetStoredCourses } from "../data/coursesData";
-import { BookOpen, Calendar, Clock, Award, CheckCircle2, ChevronRight, UserCheck, Shield, Sparkles, Filter, Info, ArrowRight, DollarSign, Database, X, Settings, Edit3, RotateCcw, Check } from "lucide-react";
+import { getFacultyByName } from "../data/facultyData";
+import { BookOpen, Calendar, Clock, Award, CheckCircle2, ChevronRight, UserCheck, Shield, Sparkles, Filter, Info, ArrowRight, DollarSign, Database, X, Settings, Edit3, RotateCcw, Check, ExternalLink, User } from "lucide-react";
 
 interface RenewCoursesProps {
   onSelectCourseForEnrollment?: (course: Course) => void;
@@ -18,6 +19,8 @@ export const RenewCourses: React.FC<RenewCoursesProps> = ({
   const [courses, setCourses] = useState<Course[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("Todos");
   const [selectedCourseForModal, setSelectedCourseForModal] = useState<Course | null>(null);
+  const [selectedInstructorModal, setSelectedInstructorModal] = useState<FacultyMember | null>(null);
+  const [instructorImgError, setInstructorImgError] = useState(false);
 
   // Course Price Management State
   const [isPriceEditorOpen, setIsPriceEditorOpen] = useState(false);
@@ -58,7 +61,7 @@ export const RenewCourses: React.FC<RenewCoursesProps> = ({
   const handleSavePriceMap = () => {
     let updated = [...courses];
     Object.entries(editingPriceMap).forEach(([cId, price]) => {
-      updated = updateCoursePrice(cId, price);
+      updated = updateCoursePrice(cId, Number(price));
     });
     setCourses(updated);
     setPriceSaveSuccess(true);
@@ -221,7 +224,19 @@ export const RenewCourses: React.FC<RenewCoursesProps> = ({
                       <UserCheck className="w-3.5 h-3.5 text-[#D6B858]" />
                       Catedrático:
                     </span>
-                    <span className="font-semibold text-gray-800">{course.instructor}</span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setInstructorImgError(false);
+                        const fac = getFacultyByName(course.instructor);
+                        if (fac) setSelectedInstructorModal(fac);
+                      }}
+                      className="font-semibold text-[#725c00] hover:text-[#1A1A19] hover:underline flex items-center gap-1 cursor-pointer text-xs"
+                      title="Ver biografía del catedrático"
+                    >
+                      <span>{course.instructor}</span>
+                      <ExternalLink className="w-3 h-3 text-[#D6B858]" />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -322,7 +337,17 @@ export const RenewCourses: React.FC<RenewCoursesProps> = ({
                 </div>
                 <div>
                   <span className="text-gray-500 block font-medium">Catedrático:</span>
-                  <span className="font-bold text-gray-900">{selectedCourseForModal.instructor}</span>
+                  <button
+                    onClick={() => {
+                      setInstructorImgError(false);
+                      const fac = getFacultyByName(selectedCourseForModal.instructor);
+                      if (fac) setSelectedInstructorModal(fac);
+                    }}
+                    className="font-bold text-[#725c00] hover:text-[#1A1A19] hover:underline flex items-center gap-1 cursor-pointer text-xs"
+                  >
+                    <span>{selectedCourseForModal.instructor}</span>
+                    <ExternalLink className="w-3 h-3 text-[#D6B858]" />
+                  </button>
                 </div>
                 <div>
                   <span className="text-gray-500 block font-medium">Moodle Course Shortname:</span>
@@ -471,6 +496,85 @@ export const RenewCourses: React.FC<RenewCoursesProps> = ({
           </div>
         </div>
       )}
+      {/* Instructor Profile Modal */}
+      {selectedInstructorModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full overflow-hidden border border-[#D6B858] shadow-2xl animate-scale-up">
+            <div className="bg-[#1A1A19] text-white p-6 relative">
+              <button
+                onClick={() => setSelectedInstructorModal(null)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-white text-lg font-bold cursor-pointer"
+              >
+                ✕
+              </button>
+
+              <div className="flex items-center gap-4">
+                <div className="relative shrink-0">
+                  {!instructorImgError ? (
+                    <img
+                      src={selectedInstructorModal.image}
+                      alt={selectedInstructorModal.name}
+                      onError={() => setInstructorImgError(true)}
+                      className="w-20 h-20 rounded-full object-cover border-2 border-[#D6B858] shadow-md"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 rounded-full bg-gray-800 text-[#D6B858] border-2 border-[#D6B858] flex flex-col items-center justify-center font-bold text-lg">
+                      <User className="w-6 h-6" />
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <h3 className="text-xl font-black text-white">{selectedInstructorModal.name}</h3>
+                  <span className="text-xs font-bold text-[#D6B858] bg-[#D6B858]/20 px-2.5 py-0.5 rounded-full inline-block mt-1">
+                    {selectedInstructorModal.role}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div>
+                <span className="text-xs font-extrabold text-[#725c00] uppercase tracking-wider block mb-1">
+                  Especialidad Académica
+                </span>
+                <p className="text-xs text-gray-800 font-semibold">{selectedInstructorModal.specialty}</p>
+              </div>
+
+              <div>
+                <span className="text-xs font-extrabold text-[#725c00] uppercase tracking-wider block mb-1">
+                  Biografía & Trayectoria
+                </span>
+                <p className="text-xs text-gray-600 leading-relaxed max-h-48 overflow-y-auto">
+                  {selectedInstructorModal.bioEs || selectedInstructorModal.bioEn}
+                </p>
+              </div>
+
+              {selectedInstructorModal.externalLink && (
+                <div className="pt-2 border-t border-gray-100 flex justify-between items-center">
+                  <a
+                    href={selectedInstructorModal.externalLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-[#725c00] hover:text-[#1A1A19] font-bold flex items-center gap-1 hover:underline"
+                  >
+                    <span>Ver Perfil en Renew.org</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+
+                  <button
+                    onClick={() => setSelectedInstructorModal(null)}
+                    className="px-4 py-1.5 text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg cursor-pointer"
+                  >
+                    Cerrar
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
