@@ -1,0 +1,83 @@
+{
+  "student-guest-001_book-quijote": {
+    "studentId": "student-guest-001",
+    "bookId": "book-quijote",
+    "lastChapterIndex": 2,
+    "progressPercentage": 100,
+    "totalTimeMinutes": 2,
+    "bookmarks": [],
+    "lastReadAt": "2026-08-24T21:55:27.080Z"
+  },
+  "student-guest-001_book-hermeneutica": {
+    "studentId": "student-guest-001",
+    "bookId": "book-hermeneutica",
+    "lastChapterIndex": 0,
+    "progressPercentage": 50,
+    "totalTimeMinutes": 2,
+    "bookmarks": [],
+    "lastReadAt": "2026-08-24T19:39:10.342Z"
+  },
+  "student-guest-001_book-principito": {
+    "studentId": "student-guest-001",
+    "bookId": "book-principito",
+    "lastChapterIndex": 0,
+    "progressPercentage": 50,
+    "totalTimeMinutes": 3,
+    "bookmarks": [],
+    "lastReadAt": "2026-08-24T19:39:17.719Z"
+  },
+  "student-guest-001_book-409177": {
+    "studentId": "student-guest-001",
+    "bookId": "book-409177",
+    "lastChapterIndex": 3,
+    "progressPercentage": 33,
+    "totalTimeMinutes": 3,
+    "bookmarks": [],
+    "lastReadAt": "2026-08-24T21:55:31.469Z"
+  },
+  "student-guest-001_book-629612": {
+    "studentId": "student-guest-001",
+    "bookId": "book-629612",
+    "lastChapterIndex": 3,
+    "progressPercentage": 33,
+    "totalTimeMinutes": 4,
+    "bookmarks": [],
+    "lastReadAt": "2026-09-04T02:19:26.086Z"
+  },
+  "student-guest-001_book-351002": {
+    "studentId": "student-guest-001",
+    "bookId": "book-351002",
+    "lastChapterIndex": 3,
+    "progressPercentage": 12,
+    "totalTimeMinutes": 2,
+    "bookmarks": [],
+    "lastReadAt": "2026-08-24T22:33:15.145Z"
+  },
+  "student-guest-001_book-875049": {
+    "studentId": "student-guest-001",
+    "bookId": "book-875049",
+    "lastChapterIndex": 1,
+    "progressPercentage": 6,
+    "totalTimeMinutes": 3,
+    "bookmarks": [],
+    "lastReadAt": "2026-09-04T22:29:09.359Z"
+  },
+  "student-guest-001_book-387380": {
+    "studentId": "student-guest-001",
+    "bookId": "book-387380",
+    "lastChapterIndex": 0,
+    "progressPercentage": 0,
+    "totalTimeMinutes": 1,
+    "bookmarks": [],
+    "lastReadAt": "2026-09-04T02:28:30.048Z"
+  },
+  "student-guest-001_book-682196": {
+    "studentId": "student-guest-001",
+    "bookId": "book-682196",
+    "lastChapterIndex": 0,
+    "progressPercentage": 0,
+    "totalTimeMinutes": 1,
+    "bookmarks": [],
+    "lastReadAt": "2026-09-04T22:27:35.337Z"
+  }
+}

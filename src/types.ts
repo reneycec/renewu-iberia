@@ -101,5 +101,55 @@ export interface FacultyMember {
   email?: string;
 }
 
-export type ViewMode = "enrollment" | "checkout" | "courses" | "about" | "moodle_admin" | "ai_tutor" | "iframe_mode" | "cms_editor";
+export type ViewMode = "enrollment" | "checkout" | "courses" | "about" | "moodle_admin" | "ai_tutor" | "iframe_mode" | "cms_editor" | "book_reader" | "book_admin" | "book_translator";
+
+
+export type BookAccessRule = "registered_only" | "paid_only" | "public";
+
+export interface BookChapter {
+  id: string;
+  number: number;
+  title: string;
+  subtitle?: string;
+  estimatedReadTimeMinutes?: number;
+  content: string; // Markdown or sanitized HTML text
+}
+
+export interface BookItem {
+  id: string;
+  title: string;
+  subtitle?: string;
+  author: string;
+  year?: string;
+  isbn?: string;
+  courseId?: string; // Links to Course ID e.g. "BIB-101"
+  courseName?: string;
+  category: string;
+  coverImage?: string;
+  accessRule: BookAccessRule;
+  publishedAt: string;
+  totalPages?: number;
+  description: string;
+  chapters: BookChapter[];
+}
+
+export interface BookmarkItem {
+  id: string;
+  chapterIndex: number;
+  chapterTitle: string;
+  note?: string;
+  createdAt: string;
+}
+
+export interface StudentReadingProgress {
+  studentId: string;
+  bookId: string;
+  lastChapterIndex: number;
+  progressPercentage: number;
+  totalTimeMinutes: number;
+  bookmarks: BookmarkItem[];
+  lastReadAt: string;
+}
+
+
 

@@ -147,20 +147,22 @@ export const DEFAULT_FACULTY: FacultyMember[] = [
   }
 ];
 
-const FACULTY_STORAGE_KEY = "renewu_faculty_members_v1";
+const FACULTY_STORAGE_KEY = "renewu_faculty_members_v2";
 
 export function getStoredFaculty(): FacultyMember[] {
   try {
     const data = localStorage.getItem(FACULTY_STORAGE_KEY);
     if (data) {
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed) && parsed.length >= DEFAULT_FACULTY.length) {
         return parsed;
       }
     }
   } catch (e) {
     console.error("Error reading faculty data from localStorage:", e);
   }
+  // Auto-persist and return DEFAULT_FACULTY on first load or cache upgrade
+  saveStoredFaculty(DEFAULT_FACULTY);
   return DEFAULT_FACULTY;
 }
 

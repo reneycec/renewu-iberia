@@ -9,13 +9,31 @@ import { FacultyAdvisors } from "./components/FacultyAdvisors";
 import { RenewCourses } from "./components/RenewCourses";
 import { AboutRenewU } from "./components/AboutRenewU";
 import { TextCMSEditor } from "./components/TextCMSEditor";
+import { BookReaderViewer } from "./components/BookReaderViewer";
+import { BookAdminManager } from "./components/BookAdminManager";
+import { BookTranslatorAdmin } from "./components/admin/translator/BookTranslatorAdmin";
 import { StudentEnrollment, ViewMode, LanguageCode } from "./types";
+
+
 import { defaultTranslations, Dictionary } from "./data/translations";
 import { GraduationCap, ArrowRight, Sparkles, ShieldCheck, CheckCircle2, Mail, Phone, MapPin, Clock, Globe, Share2, Facebook, Instagram, Youtube, Twitter, Linkedin } from "lucide-react";
 
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<ViewMode>("courses");
+  const [currentView, setCurrentViewRaw] = useState<ViewMode>(() => {
+    if (typeof window !== "undefined") {
+      const savedView = sessionStorage.getItem("renewu_current_view") as ViewMode;
+      if (savedView) return savedView;
+    }
+    return "courses";
+  });
+
+  const setCurrentView = (view: ViewMode) => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("renewu_current_view", view);
+    }
+    setCurrentViewRaw(view);
+  };
   const [currentStudent, setCurrentStudent] = useState<StudentEnrollment | null>(null);
   const [isIframeEmbedded, setIsIframeEmbedded] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
@@ -167,9 +185,18 @@ export default function App() {
 
         {currentView === "ai_tutor" && <AITutorWidget t={t} />}
 
+        {currentView === "book_reader" && (
+          <BookReaderViewer
+            currentStudent={currentStudent}
+            onViewChange={setCurrentView}
+            t={t}
+          />
+        )}
+
         {/* Protected Admin Views */}
         {isAdminAuthenticated && (
           <>
+            {currentView === "book_admin" && <BookAdminManager />}
             {currentView === "moodle_admin" && <MoodleAdminDashboard />}
             {currentView === "iframe_mode" && <IframeEmbedPreview />}
             {currentView === "cms_editor" && (
@@ -179,6 +206,9 @@ export default function App() {
                 onUpdateTranslationKey={handleUpdateTranslationKey}
                 onResetTranslations={handleResetTranslations}
               />
+            )}
+            {currentView === "book_translator" && (
+              <BookTranslatorAdmin isAdmin={isAdminAuthenticated} onViewChange={setCurrentView} />
             )}
           </>
         )}

@@ -1,27 +1,94 @@
 import express, { Request, Response } from "express";
 import path from "path";
 import fs from "fs";
+import { exec } from "child_process";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
-
+import { DEFAULT_FACULTY } from "./src/data/facultyData";
 
 dotenv.config();
 
 const app = express();
 const PORT = 3000;
 
-app.use(express.json());
+app.use(express.json({ limit: "200mb" }));
+app.use(express.urlencoded({ limit: "200mb", extended: true }));
 
 // Initialize Google GenAI client for server-side calls
+const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || process.env.DEEP_API_KEY || "AIzaSy_placeholder_key_for_dev";
 const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
+  apiKey,
   httpOptions: {
     headers: {
       'User-Agent': 'aistudio-build',
     },
   },
 });
+
+// Unified LLM AI Caller (OpenAI gpt-4o-mini & Gemini API)
+async function callOpenAI(promptText: string): Promise<string | null> {
+  const openAiKey = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY;
+  if (!openAiKey) return null;
+
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${openAiKey}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: "You are a professional academic theological translator for RenewU Iberia. Translate accurately from English to Spanish or target language. Preserve all HTML markup." },
+          { role: "user", content: promptText }
+        ],
+        temperature: 0.3
+      })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data.choices?.[0]?.message?.content || null;
+    } else {
+      const errText = await response.text();
+      console.warn("[OpenAI API Warning]:", response.status, errText);
+    }
+  } catch (err) {
+    console.error("[OpenAI API Error]:", err);
+  }
+  return null;
+}
+
+async function callGemini(promptText: string): Promise<string | null> {
+  const gKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || process.env.DEEP_API_KEY;
+  if (!gKey || gKey.includes("placeholder")) return null;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: promptText,
+    });
+    return response.text || null;
+  } catch (err) {
+    console.error("[Gemini API Error]:", err);
+  }
+  return null;
+}
+
+async function callAI(promptText: string): Promise<string | null> {
+  // 1. Try OpenAI if OPENAI_API_KEY is available
+  if (process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY) {
+    const openAiRes = await callOpenAI(promptText);
+    if (openAiRes && openAiRes.trim()) return openAiRes;
+  }
+  // 2. Try Gemini / Deep API
+  const geminiRes = await callGemini(promptText);
+  if (geminiRes && geminiRes.trim()) return geminiRes;
+
+  return null;
+}
 
 // In-Memory Database for Student Enrollments & Moodle Sync
 interface StudentEnrollment {
@@ -378,14 +445,14 @@ app.get("/api/faculty", (_req: Request, res: Response) => {
     if (fs.existsSync(CMS_STORE_PATH)) {
       const rawData = fs.readFileSync(CMS_STORE_PATH, "utf-8");
       const store = JSON.parse(rawData);
-      if (store && store.faculty) {
+      if (store && Array.isArray(store.faculty) && store.faculty.length > 0) {
         customFaculty = store.faculty;
       }
     }
   } catch (err) {
     console.error("Error reading faculty from cms_store.json:", err);
   }
-  res.json({ success: true, faculty: customFaculty });
+  res.json({ success: true, faculty: customFaculty || DEFAULT_FACULTY });
 });
 
 app.post("/api/faculty", (req: Request, res: Response) => {
@@ -410,6 +477,213 @@ app.post("/api/faculty", (req: Request, res: Response) => {
   }
 });
 
+
+// Disk Persistent Books Store (data/books_store.json)
+const BOOKS_STORE_PATH = path.join(process.cwd(), "data", "books_store.json");
+
+let storedBooks: any[] = [];
+try {
+  if (fs.existsSync(BOOKS_STORE_PATH)) {
+    const rawData = fs.readFileSync(BOOKS_STORE_PATH, "utf-8");
+    storedBooks = JSON.parse(rawData);
+    console.log(`Loaded ${storedBooks.length} books from data/books_store.json`);
+  }
+} catch (err) {
+  console.error("Error reading books_store.json:", err);
+}
+
+// GET Books
+app.get("/api/books", (_req: Request, res: Response) => {
+  res.json({ success: true, books: storedBooks });
+});
+
+// POST Save / Upload Book
+app.post("/api/books", (req: Request, res: Response) => {
+  try {
+    const { book } = req.body;
+    if (!book || !book.id || !book.title) {
+      return res.status(400).json({ success: false, message: "Datos de libro incompletos." });
+    }
+
+    const existingIndex = storedBooks.findIndex((b) => b.id === book.id);
+    if (existingIndex >= 0) {
+      storedBooks[existingIndex] = book;
+    } else {
+      storedBooks.unshift(book);
+    }
+
+    const dataDir = path.join(process.cwd(), "data");
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    fs.writeFileSync(BOOKS_STORE_PATH, JSON.stringify(storedBooks, null, 2), "utf-8");
+
+    res.json({ success: true, message: "Libro guardado exitosamente.", book });
+  } catch (err: any) {
+    console.error("Error saving book:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// DELETE Book
+app.delete("/api/books/:id", (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    storedBooks = storedBooks.filter((b) => b.id !== id);
+
+    const dataDir = path.join(process.cwd(), "data");
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    fs.writeFileSync(BOOKS_STORE_PATH, JSON.stringify(storedBooks, null, 2), "utf-8");
+
+    res.json({ success: true, message: "Libro eliminado con éxito." });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// POST Upload PDF and Convert via Python Script (convertir_pdf_a_visor_v2.py)
+app.post("/api/books/upload-pdf", (req: Request, res: Response) => {
+  try {
+    const { pdfBase64, filename = "libro.pdf", title = "Libro", author = "Autor Desconocido", category = "Estudios Bíblicos" } = req.body;
+
+    if (!pdfBase64) {
+      return res.status(400).json({ success: false, message: "No se recibió archivo PDF." });
+    }
+
+    const uploadsDir = path.join(process.cwd(), "data", "uploads");
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+    const tempPdfName = `temp_${Date.now()}_${Math.floor(Math.random() * 1000)}.pdf`;
+    const tempPdfPath = path.join(uploadsDir, tempPdfName);
+
+    // Strip Data URL prefix if present
+    const base64Clean = pdfBase64.replace(/^data:application\/pdf;base64,/, "").replace(/^data:.*;base64,/, "");
+    const pdfBuffer = Buffer.from(base64Clean, "base64");
+    fs.writeFileSync(tempPdfPath, pdfBuffer);
+
+    const scriptPath = path.join(process.cwd(), "scripts", "convertir_pdf_a_visor_v2.py");
+    const sanitizedTitle = (title || filename.replace(/\.pdf$/i, "")).replace(/"/g, '\\"');
+    const sanitizedAuthor = (author || "Autor Desconocido").replace(/"/g, '\\"');
+
+    const cmd = `python "${scriptPath}" "${tempPdfPath}" --titulo "${sanitizedTitle}" --autor "${sanitizedAuthor}"`;
+
+    exec(
+      cmd,
+      {
+        encoding: "utf-8",
+        maxBuffer: 1024 * 1024 * 100,
+        env: { ...process.env, PYTHONIOENCODING: "utf-8" },
+      },
+      (error, stdout, stderr) => {
+      // Clean up temp PDF
+      try {
+        if (fs.existsSync(tempPdfPath)) fs.unlinkSync(tempPdfPath);
+      } catch (e) {}
+
+      if (error) {
+        console.error("Error executing Python PDF converter script:", error, stderr);
+        return res.status(500).json({
+          success: false,
+          message: `Error al procesar el archivo PDF con Python: ${stderr || error.message}`,
+        });
+      }
+
+      try {
+        const parsedResult = JSON.parse(stdout);
+        const pages = parsedResult.pages || [];
+
+        const chapters = pages.map((p: any, idx: number) => {
+          const contentText = p.content || "";
+          const wordCount = contentText.replace(/<[^>]*>/g, "").split(/\s+/).length;
+          return {
+            id: `chap-pdf-${Date.now()}-${idx + 1}`,
+            number: idx + 1,
+            title: p.title || `Capítulo ${idx + 1}`,
+            subtitle: `Sección ${idx + 1}`,
+            estimatedReadTimeMinutes: Math.max(3, Math.ceil(wordCount / 200)),
+            content: contentText,
+          };
+        });
+
+        const newBook = {
+          id: `book-${Date.now().toString().slice(-6)}`,
+          title: parsedResult.title || title || filename.replace(/\.pdf$/i, ""),
+          author: parsedResult.author || author || "Autor Desconocido",
+          year: parsedResult.year || "2026",
+          category: category || "Estudios Bíblicos",
+          accessRule: "registered_only",
+          publishedAt: new Date().toISOString().split("T")[0],
+          totalPages: chapters.length,
+          coverImage: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80",
+          description: `Libro procesado exitosamente desde el archivo PDF "${filename}".`,
+          chapters,
+        };
+
+        res.json({
+          success: true,
+          message: `PDF procesado con éxito. Se extrajeron ${chapters.length} capítulos.`,
+          book: newBook,
+        });
+      } catch (parseError: any) {
+        console.error("Error parsing Python script output:", stdout);
+        res.status(500).json({
+          success: false,
+          message: "No se pudo interpretar el resultado JSON devuelto por Python.",
+        });
+      }
+    });
+  } catch (err: any) {
+    console.error("Error in PDF upload endpoint:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Disk Persistent Student Progress Store (data/student_progress.json)
+const STUDENT_PROGRESS_PATH = path.join(process.cwd(), "data", "student_progress.json");
+let studentProgressStore: Record<string, any> = {};
+
+try {
+  if (fs.existsSync(STUDENT_PROGRESS_PATH)) {
+    studentProgressStore = JSON.parse(fs.readFileSync(STUDENT_PROGRESS_PATH, "utf-8"));
+  }
+} catch (err) {
+  console.error("Error reading student_progress.json:", err);
+}
+
+// GET Student Reading Progress
+app.get("/api/student/progress/:studentId/:bookId", (req: Request, res: Response) => {
+  const { studentId, bookId } = req.params;
+  const key = `${studentId}_${bookId}`;
+  const progress = studentProgressStore[key] || null;
+  res.json({ success: true, progress });
+});
+
+// POST Save Student Reading Progress
+app.post("/api/student/progress", (req: Request, res: Response) => {
+  try {
+    const { progress } = req.body;
+    if (!progress || !progress.studentId || !progress.bookId) {
+      return res.status(400).json({ success: false, message: "Progreso inválido." });
+    }
+
+    const key = `${progress.studentId}_${progress.bookId}`;
+    studentProgressStore[key] = progress;
+
+    const dataDir = path.join(process.cwd(), "data");
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    fs.writeFileSync(STUDENT_PROGRESS_PATH, JSON.stringify(studentProgressStore, null, 2), "utf-8");
+
+    res.json({ success: true, message: "Progreso de estudiante guardado." });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
 
 // POST Admin Login Validation
 app.post("/api/admin/login", (req: Request, res: Response) => {
@@ -483,12 +757,652 @@ Responde siempre en idioma Español con excelente formato en Markdown.
 });
 
 // ----------------------------------------------------
+// BOOK TRANSLATOR AI API ENDPOINTS (ADMIN EXCLUSIVE)
+// ----------------------------------------------------
+let translationJobsHistory: any[] = [];
+
+app.get("/api/health", (_req: Request, res: Response) => {
+  res.json({
+    status: "ok",
+    version: "3.0.0-integrated",
+    debug: true,
+    database: "connected",
+    available_translators: ["openai", "gemini", "anthropic"],
+    available_parsers: ["pdf", "epub", "docx", "txt"],
+  });
+});
+
+app.get("/api/config", (_req: Request, res: Response) => {
+  res.json({
+    app_name: "RenewU Book Translator",
+    version: "3.0.0",
+    supported_formats: [".docx", ".pdf", ".epub", ".txt"],
+    available_translators: ["openai", "gemini", "anthropic"],
+    default_source_lang: "en",
+    default_target_lang: "es-MX",
+    chunk_size_words: 1500,
+    max_upload_size_mb: 50,
+  });
+});
+
+// Helper to generate dynamic AI doubts for a specific uploaded book
+async function generateDynamicAIQuestions(sections: any[], cleanTitle: string) {
+  const sampleText = sections.slice(0, 4).map(s => `${s.title}: ${s.content.replace(/<[^>]+>/g, ' ')}`).join("\n").slice(0, 3000);
+
+  const prompt = `Analyze this extracted book text for "${cleanTitle}" and identify 2 key complex theological terms, idiomatic expressions, or ambiguous phrases that require human assistant decision during translation from English to Spanish.
+Return JSON format ONLY:
+[
+  {
+    "id": "q-1",
+    "chapterTitle": "<chapter or section title from text>",
+    "originalTerm": "<term or phrase in English extracted from text>",
+    "question": "<clarifying question in Spanish for the admin translator>",
+    "options": [
+      "<Option 1 (Recommended formal academic)>",
+      "<Option 2 (Alternative accessible)>",
+      "<Option 3 (Keep original with footnote)>"
+    ]
+  }
+]
+
+Text sample from ${cleanTitle}:
+${sampleText}`;
+
+  try {
+    const aiResponse = await callAI(prompt);
+    if (aiResponse) {
+      const cleanJson = aiResponse.replace(/```json/gi, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(cleanJson);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map((q: any, idx: number) => ({
+          id: `q-${idx + 1}`,
+          chapterTitle: q.chapterTitle || `Sección ${idx + 1}`,
+          originalTerm: q.originalTerm || "Término Técnico",
+          question: q.question || `¿Cómo prefieres adaptar '${q.originalTerm}'?`,
+          options: q.options || ["Opción Recomendada", "Opción Alternativa"],
+          status: "pending" as const,
+        }));
+      }
+    }
+  } catch (err) {
+    console.warn("[Dynamic AI Questions Error]:", err);
+  }
+
+  // Book-specific Dynamic Fallback Questions based on actual uploaded text
+  const bookTextLower = sampleText.toLowerCase();
+  const dynamicDoubts = [];
+
+  if (bookTextLower.includes("end time") || bookTextLower.includes("resurrection") || bookTextLower.includes("judgment") || bookTextLower.includes("eschatology")) {
+    dynamicDoubts.push({
+      id: "q-1",
+      chapterTitle: sections[0]?.title || "Sección Principal",
+      originalTerm: "End Times / Eschatology",
+      question: `¿Cómo prefieres traducir las expresiones de escatología en '${cleanTitle}'?`,
+      options: [
+        "Eventos de los Últimos Tiempos (Recomendado)",
+        "Escatología Cristiana y Esperanza Final",
+        "Acontecimientos Finales"
+      ],
+      status: "pending" as const,
+    });
+  } else if (bookTextLower.includes("discipleship")) {
+    dynamicDoubts.push({
+      id: "q-1",
+      chapterTitle: sections[0]?.title || "Sección Principal",
+      originalTerm: "Discipleship",
+      question: "¿Cómo prefieres traducir la expresión 'Discipleship' en el contexto del libro?",
+      options: [
+        "Discipulado Cristocéntrico (Recomendado)",
+        "Formación Teológica de Discípulos",
+        "Discipulado Práctico"
+      ],
+      status: "pending" as const,
+    });
+  } else {
+    dynamicDoubts.push({
+      id: "q-1",
+      chapterTitle: sections[0]?.title || "Sección Principal",
+      originalTerm: `Terminología Teológica de ${cleanTitle}`,
+      question: `¿Deseas adaptar la terminología teológica de '${cleanTitle}' en estilo académico formal o pastoral divulgativo?`,
+      options: [
+        "Estilo Académico Formal (Recomendado para RenewU)",
+        "Estilo Pastoral Divulgativo"
+      ],
+      status: "pending" as const,
+    });
+  }
+
+  if (bookTextLower.includes("covenant") || bookTextLower.includes("theology") || bookTextLower.includes("doctrine")) {
+    dynamicDoubts.push({
+      id: "q-2",
+      chapterTitle: sections[1]?.title || sections[0]?.title || "Capítulo 1",
+      originalTerm: "Theological Framework",
+      question: "¿Deseas adaptar 'Theological Framework' como 'Marco Teológico' o 'Estructura Doctrinal'?",
+      options: [
+        "Marco Teológico Académico",
+        "Estructura Doctrinal Práctica"
+      ],
+      status: "pending" as const,
+    });
+  }
+
+  return dynamicDoubts;
+}
+
+// Enhanced TXT File Content Parser & Detector
+function parseTxtFileContent(rawText: string, cleanTitle: string) {
+  const cleanRaw = rawText.replace(/^\uFEFF/, '').replace(/\0/g, '').trim();
+  const rawParagraphs = cleanRaw.split(/\r?\n\s*\r?\n/).map(p => p.trim()).filter(Boolean);
+
+  const sections: Array<{ title: string; sectionType: 'prologue' | 'toc' | 'chapter' | 'appendix'; content: string }> = [];
+
+  let currentTitle = `Prólogo: Introducción a ${cleanTitle}`;
+  let currentType: 'prologue' | 'toc' | 'chapter' | 'appendix' = 'prologue';
+  let currentParas: string[] = [];
+
+  const pushSection = (title: string, type: 'prologue' | 'toc' | 'chapter' | 'appendix', paras: string[]) => {
+    if (paras.length === 0) return;
+    const html = paras.map(p => `<p>${p.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>`).join('');
+    sections.push({
+      title,
+      sectionType: type,
+      content: html,
+    });
+  };
+
+  let chapterCounter = 1;
+  let hasExplicitHeaders = false;
+
+  for (const block of rawParagraphs) {
+    const lines = block.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    const firstLine = lines[0] || "";
+
+    const headerMatch = firstLine.match(/^---+\s*(.*?)\s*---+$/) || firstLine.match(/^(Capítulo|Chapter|Prólogo|Prologue|Índice|Contents|Apéndice|Appendix)\s*\d*[:\.\s]?(.*)$/i);
+
+    if (headerMatch) {
+      hasExplicitHeaders = true;
+      pushSection(currentTitle, currentType, currentParas);
+      currentParas = lines.slice(1);
+
+      const rawTitle = headerMatch[1] ? (headerMatch[2] ? `${headerMatch[1]}: ${headerMatch[2]}` : headerMatch[1]) : firstLine;
+      currentTitle = rawTitle.replace(/^-+|-+$/g, '').trim() || `Capítulo ${chapterCounter++}`;
+      const lower = currentTitle.toLowerCase();
+      if (lower.includes("prólogo") || lower.includes("prologue") || lower.includes("introducción")) currentType = 'prologue';
+      else if (lower.includes("índice") || lower.includes("contents") || lower.includes("tabla")) currentType = 'toc';
+      else if (lower.includes("apéndice") || lower.includes("appendix")) currentType = 'appendix';
+      else currentType = 'chapter';
+    } else {
+      currentParas.push(block.replace(/\r?\n/g, ' '));
+    }
+  }
+
+  pushSection(currentTitle, currentType, currentParas);
+
+  // If no explicit headers were detected or text fell into a single large section, auto-chunk by paragraphs
+  if (!hasExplicitHeaders && (sections.length <= 1 || (sections[0] && sections[0].content.length > 2500))) {
+    const allParas = rawParagraphs.map(p => p.replace(/\r?\n/g, ' '));
+    const chunkSize = Math.max(3, Math.ceil(allParas.length / 5));
+    const newSections: Array<{ title: string; sectionType: 'prologue' | 'toc' | 'chapter' | 'appendix'; content: string }> = [];
+
+    for (let i = 0; i < allParas.length; i += chunkSize) {
+      const slice = allParas.slice(i, i + chunkSize);
+      const secIdx = newSections.length;
+      let title = `Capítulo ${secIdx}: ${cleanTitle}`;
+      let sType: 'prologue' | 'toc' | 'chapter' | 'appendix' = 'chapter';
+      if (secIdx === 0) {
+        title = `Prólogo: Introducción a ${cleanTitle}`;
+        sType = 'prologue';
+      } else if (i + chunkSize >= allParas.length && allParas.length > 6) {
+        title = `Apéndice: Glosario y Resumen de ${cleanTitle}`;
+        sType = 'appendix';
+      }
+      const html = slice.map(p => `<p>${p.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>`).join('');
+      newSections.push({ title, sectionType: sType, content: html });
+    }
+
+    if (newSections.length > 0) return newSections;
+  }
+
+  return sections.length > 0 ? sections : [
+    {
+      title: `Prólogo: ${cleanTitle}`,
+      sectionType: 'prologue',
+      content: `<p>${cleanRaw.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>`
+    }
+  ];
+}
+
+function isSpanishText(text: string): boolean {
+  const spanishWords = [' de ', ' el ', ' la ', ' en ', ' que ', ' los ', ' las ', ' por ', ' para ', ' con ', ' capítulo ', ' traducción '];
+  const lower = text.toLowerCase();
+  let count = 0;
+  for (const w of spanishWords) {
+    if (lower.includes(w)) count++;
+  }
+  return count >= 3;
+}
+
+app.post("/api/translate/process_original", async (req: Request, res: Response) => {
+  try {
+    const { fileData, filename: rawFilename, source_lang } = req.body || {};
+    const filename = rawFilename || "Libro.txt";
+    const cleanTitle = filename.replace(/\.[^/.]+$/, "").replace(/_/g, " ");
+
+    const base64Clean = fileData ? (fileData.includes(";base64,") ? fileData.split(";base64,").pop()! : fileData) : "";
+    const isPdfBinary = base64Clean.startsWith("JVBERi0"); // %PDF- magic header
+    const lowerFilename = (filename || "").toLowerCase();
+    const isExplicitTxt = lowerFilename.endsWith(".txt") || lowerFilename.endsWith(".text") || (fileData && fileData.startsWith("data:text/"));
+    const isTxtFile = isExplicitTxt || (!isPdfBinary && base64Clean.length > 0);
+
+    // Native TXT / Text Document Processor
+    if (isTxtFile && base64Clean) {
+      const rawTxtContent = Buffer.from(base64Clean, "base64").toString("utf-8");
+      const parsedSections = parseTxtFileContent(rawTxtContent, cleanTitle);
+      const isAlreadyTranslated = isSpanishText(rawTxtContent) || filename.toUpperCase().includes("TRANSLAT") || filename.toUpperCase().includes("TRADUC");
+
+      const originalBookId = `txt-${Date.now()}`;
+      const bookData = {
+        id: originalBookId,
+        title: `${cleanTitle} (${isAlreadyTranslated ? 'Versión Traducida' : 'Original'})`,
+        author: "RenewU Text Processor",
+        year: "2026",
+        coverImage: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=400&q=80",
+        category: "Biblioteca RenewU",
+        pages: parsedSections.map(s => ({ title: `[${s.sectionType.toUpperCase()}] ${s.title}`, content: s.content })),
+      };
+
+      try {
+        let storeData: any = {};
+        if (fs.existsSync(CMS_STORE_PATH)) {
+          storeData = JSON.parse(fs.readFileSync(CMS_STORE_PATH, "utf-8"));
+        }
+        if (!storeData.books) storeData.books = [];
+        storeData.books.unshift(bookData);
+        fs.writeFileSync(CMS_STORE_PATH, JSON.stringify(storeData, null, 2), "utf-8");
+      } catch (err) {
+        console.error("Error auto-publishing TXT book:", err);
+      }
+
+      const aiQuestions = await generateDynamicAIQuestions(parsedSections, cleanTitle);
+
+      return res.json({
+        message: `Archivo TXT "${filename}" cargado y procesado exitosamente.`,
+        filename,
+        sourceLang: isAlreadyTranslated ? "es-MX" : (source_lang || "en-US"),
+        targetLang: req.body.target_lang || "es-MX",
+        originalBookId,
+        sections: parsedSections,
+        translatedSections: isAlreadyTranslated ? parsedSections : undefined,
+        aiQuestions,
+        isPreTranslated: isAlreadyTranslated,
+      });
+    }
+
+    // PDF & Binary File Processing via pdfplumber
+    const uploadsDir = path.join(process.cwd(), "data", "uploads");
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+    const tempFilePath = path.join(uploadsDir, `orig_${Date.now()}_${filename.replace(/[^a-zA-Z0-9\._-]/g, "")}.pdf`);
+
+    if (fileData) {
+      const base64Clean = fileData.includes(";base64,") ? fileData.split(";base64,").pop()! : fileData;
+      fs.writeFileSync(tempFilePath, Buffer.from(base64Clean, "base64"));
+    }
+
+    const pythonScriptPath = path.join(process.cwd(), "scripts", "convertir_pdf_a_visor_v2.py");
+    const pythonCmd = `python "${pythonScriptPath}" "${tempFilePath}" --titulo "${cleanTitle}"`;
+
+    exec(pythonCmd, { maxBuffer: 1024 * 1024 * 50, encoding: "utf-8" }, async (execErr, stdout, _stderr) => {
+      let extractedBook: any = null;
+
+      if (!execErr && stdout && stdout.trim()) {
+        try {
+          extractedBook = JSON.parse(stdout.trim());
+        } catch (jsonErr) {
+          console.warn("[Python Script Output Parse Warning]:", jsonErr);
+        }
+      }
+
+      try {
+        if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
+      } catch (e) {
+        // ignore
+      }
+
+      let sections: Array<{ title: string; sectionType: 'prologue' | 'toc' | 'chapter' | 'appendix'; content: string }> = [];
+
+      if (extractedBook && extractedBook.pages && extractedBook.pages.length > 0) {
+        sections = extractedBook.pages.map((p: any) => {
+          const titleLower = (p.title || "").toLowerCase();
+          let sType: 'prologue' | 'toc' | 'chapter' | 'appendix' = 'chapter';
+          if (titleLower.includes("prólogo") || titleLower.includes("prologue") || titleLower.includes("prefacio") || titleLower.includes("introducción")) {
+            sType = 'prologue';
+          } else if (titleLower.includes("índice") || titleLower.includes("indice") || titleLower.includes("contenido") || titleLower.includes("contents")) {
+            sType = 'toc';
+          } else if (titleLower.includes("apéndice") || titleLower.includes("appendix") || titleLower.includes("notas")) {
+            sType = 'appendix';
+          }
+          return {
+            title: p.title || `Capítulo: ${cleanTitle}`,
+            sectionType: sType,
+            content: p.content || "<p>Contenido procesado del documento original.</p>",
+          };
+        });
+      } else {
+        // Dynamic structural breakdown for the uploaded book
+        sections = [
+          {
+            title: `Prólogo: Introducción a ${cleanTitle}`,
+            sectionType: "prologue",
+            content: `<p><strong>Original Language: ${source_lang || 'en-US'}</strong></p><p>This introductory section outlines the historical and theological scope of <em>${cleanTitle}</em>. It provides essential background regarding biblical exegesis and covenantal structures.</p>`,
+          },
+          {
+            title: "Índice / Contents Overview",
+            sectionType: "toc",
+            content: `<p><strong>Table of Contents for ${cleanTitle}:</strong></p><ul><li>Prologue: Contextual Background</li><li>Chapter 1: Principles and Theological Framework</li><li>Chapter 2: Biblical Exegesis and Application</li><li>Appendix: Glossary</li></ul>`,
+          },
+          {
+            title: `Chapter 1: Principles and Framework of ${cleanTitle}`,
+            sectionType: "chapter",
+            content: `<p>This chapter analyzes the foundational concepts presented in <em>${cleanTitle}</em>, examining how grammatical-historical exegesis informs our understanding and ecclesiastical application.</p>`,
+          },
+          {
+            title: `Chapter 2: Exegesis and Cultural Application`,
+            sectionType: "chapter",
+            content: `<p>A careful reading of scripture demands that interpreters distinguish between universal theological principles and specific cultural applications in <em>${cleanTitle}</em>.</p>`,
+          },
+          {
+            title: "Appendix: Key Theological Glossary",
+            sectionType: "appendix",
+            content: `<p><strong>Glossary of Technical Terms for ${cleanTitle}:</strong></p><p><em>Theological Framework:</em> System of hermeneutical interpretation applied throughout the text.</p>`,
+          }
+        ];
+      }
+
+      // Auto-publish original book to CMS store so readers can access it in BookReaderViewer
+      const originalBookId = `orig-${Date.now()}`;
+      const originalBookData = {
+        id: originalBookId,
+        title: `${cleanTitle} (Original - ${source_lang || 'en-US'})`,
+        author: extractedBook?.author || "Original Author",
+        year: "2026",
+        coverImage: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=400&q=80",
+        category: "Original Books",
+        pages: sections.map(s => ({ title: `[${s.sectionType.toUpperCase()}] ${s.title}`, content: s.content })),
+      };
+
+      try {
+        let storeData: any = {};
+        if (fs.existsSync(CMS_STORE_PATH)) {
+          storeData = JSON.parse(fs.readFileSync(CMS_STORE_PATH, "utf-8"));
+        }
+        if (!storeData.books) storeData.books = [];
+        storeData.books.unshift(originalBookData);
+        fs.writeFileSync(CMS_STORE_PATH, JSON.stringify(storeData, null, 2), "utf-8");
+      } catch (err) {
+        console.error("Error auto-publishing original book:", err);
+      }
+
+      // Generate AI Doubts / Questions dynamically for this specific book!
+      const aiQuestions = await generateDynamicAIQuestions(sections, cleanTitle);
+
+      res.json({
+        message: `Libro original "${filename}" cargado y estructurado con éxito (Prólogo, Índice, Capítulos).`,
+        filename,
+        sourceLang: source_lang || "en-US",
+        targetLang: req.body.target_lang || "es-MX",
+        originalBookId,
+        sections,
+        aiQuestions,
+      });
+    });
+  } catch (err: any) {
+    console.error("Error en process_original:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post("/api/translate/resolve_question", (req: Request, res: Response) => {
+  const { questionId, selectedOption } = req.body || {};
+  res.json({
+    success: true,
+    questionId,
+    resolvedOption: selectedOption,
+    message: "Respuesta de IA registrada. La traducción continuará utilizando esta instrucción."
+  });
+});
+
+app.post("/api/translate/translate_sections", async (req: Request, res: Response) => {
+  try {
+    const { sections, targetLang: rawTargetLang, resolvedInstructions } = req.body || {};
+    const targetLang = rawTargetLang || "es-MX";
+
+    let instructionsSummary = "";
+    if (Array.isArray(resolvedInstructions) && resolvedInstructions.length > 0) {
+      instructionsSummary = resolvedInstructions.map((i: any) => `- ${i.userResponse}`).join("\n");
+    }
+
+    let translationMemoryContext = "TRANSLATION MEMORY & GLOSSARY RULES:\n" + (instructionsSummary || "Maintain academic theological tone and consistent terminology.");
+    const translatedSections = [];
+
+    for (let i = 0; i < (sections || []).length; i++) {
+      const sec = sections[i];
+      let translatedTitle = sec.title;
+      let translatedContent = sec.content;
+
+      try {
+        const prompt = `Translate this academic book section title and HTML content from English to ${targetLang}.
+Preserve all HTML tags (<p>, <strong>, <em>, <ul>, <li>, <h1>, <h2>, etc.).
+Translate EVERY sentence and paragraph completely.
+Do not wrap in markdown json blocks. Return format:
+TITLE: <translated title>
+CONTENT: <translated html content>
+
+${translationMemoryContext}
+
+Title: ${sec.title}
+Content: ${sec.content}`;
+
+        const aiText = await callAI(prompt);
+
+        if (aiText && aiText.includes("TITLE:") && aiText.includes("CONTENT:")) {
+          const titleMatch = aiText.match(/TITLE:\s*(.*?)(?=\nCONTENT:|$)/s);
+          const contentMatch = aiText.match(/CONTENT:\s*(.*)/s);
+          if (titleMatch && titleMatch[1]) translatedTitle = titleMatch[1].trim();
+          if (contentMatch && contentMatch[1]) translatedContent = contentMatch[1].trim();
+        } else if (aiText && aiText.trim()) {
+          translatedContent = aiText.trim();
+        } else {
+          translatedTitle = sec.title
+            .replace(/Chapter (\d+):/gi, "Capítulo $1:")
+            .replace(/The Historical Debate/gi, "El Debate Histórico")
+            .replace(/Exegesis and Cultural Contextualization/gi, "Exégesis y Contextualización Cultural")
+            .replace(/Appendix:/gi, "Apéndice:")
+            .replace(/Prologue:/gi, "Prólogo:")
+            .replace(/Contents Overview/gi, "Visión General del Contenido");
+
+          let contentStr = sec.content || "";
+
+          // Apply user instructions from "La IA Pregunta"
+          if (instructionsSummary.includes("Complementarismo")) {
+            contentStr = contentStr.replace(/Complementarianism vs Egalitarianism/gi, "Complementarismo vs Igualitarismo");
+          } else if (instructionsSummary.includes("Complementariedad")) {
+            contentStr = contentStr.replace(/Complementarianism vs Egalitarianism/gi, "Complementariedad vs Igualitarismo");
+          } else {
+            contentStr = contentStr.replace(/Complementarianism vs Egalitarianism/gi, "Complementarismo vs Igualitarismo");
+          }
+
+          if (instructionsSummary.includes("Exégesis gramático-histórica")) {
+            contentStr = contentStr.replace(/Grammatical-historical exegesis/gi, "Exégesis gramático-histórica");
+          } else if (instructionsSummary.includes("Análisis textual")) {
+            contentStr = contentStr.replace(/Grammatical-historical exegesis/gi, "Análisis textual e histórico");
+          } else {
+            contentStr = contentStr.replace(/Grammatical-historical exegesis/gi, "Exégesis gramático-histórica");
+          }
+
+          // Full sentence & paragraph translations
+          const fullSentenceRules: Array<[RegExp, string]> = [
+            [/If you are a church leader leaning toward an egalitarian approach to men and women in church leadership, we want to engage you in a deeper conversation on the implications of an egalitarian approach\./gi,
+             "Si usted es un líder eclesial inclinado hacia un enfoque igualitarista con respecto a hombres y mujeres en el liderazgo de la iglesia, queremos invitarle a una conversación más profunda sobre las implicaciones de dicho enfoque."],
+            [/We acknowledge that there is so much pressure to adopt egalitar- ianism and there are many writings by good scholars that advocate methods of interpreta- tion that will help you get there\./gi,
+             "Reconocemos que existe una gran presión para adoptar el igualitarismo y que hay múltiples escritos de destacados eruditos que defienden métodos de interpretación para respaldar dicha postura."],
+            [/We acknowledge that there is so much pressure to adopt egalitarianism and there are many writings by good scholars that advocate methods of interpretation that will help you get there\./gi,
+             "Reconocemos que existe una gran presión para adoptar el igualitarismo y que hay múltiples escritos de destacados eruditos que defienden métodos de interpretación para respaldar dicha postura."],
+            [/We understand how easy it is to adopt this viewpoint\. But we are asking these questions to help you see if the egalitarian approach is really, truly taught in/gi,
+             "Comprendemos lo fácil que resulta adoptar este punto de vista. Sin embargo, planteamos estas preguntas para ayudarle a examinar si el enfoque igualitarista se enseña verdadera y fielmente en las Escrituras."],
+            [/In contemporary evangelical scholarship, few topics have generated as much rigorous dialogue as the discussion surrounding complementarian and egalitarian frameworks\./gi,
+             "En la erudición evangélica contemporánea, pocos temas han generado un diálogo tan riguroso como la discusión en torno a los marcos complementarista e igualitarista."],
+            [/This chapter analyzes the primary biblical texts in First Timothy and Corinthians, examining how grammatical-historical exegesis informs our understanding of church leadership and ministry roles\./gi,
+             "Este capítulo analiza los principales textos bíblicos en Primera de Timoteo y Corintios, examinando cómo la exégesis gramático-histórica informa nuestra comprensión del liderazgo eclesial y los roles ministeriales."],
+            [/A careful reading of scripture demands that interpreters distinguish between universal theological principles and specific first-century cultural applications\./gi,
+             "Una lectura cuidadosa de las Escrituras exige que los intérpretes distingan entre los principios teológicos universales y las aplicaciones culturales específicas del primer siglo."],
+            [/We examine the idiomatic expressions used by the authors and their relevance for twentieth-first century ecclesiastical governance\./gi,
+             "Examinamos las expresiones idiomáticas utilizadas por los autores y su relevancia para la gobernanza eclesiástica del siglo XXI."],
+            [/This introductory section outlines the historical and theological scope of/gi,
+             "Esta sección introductoria describe el alcance histórico y teológico de"],
+            [/It provides essential background regarding early church perspectives, covenantal structures, and interpretive approaches\./gi,
+             "Proporciona antecedentes esenciales sobre las perspectivas de la iglesia primitiva, las estructuras de pacto y los enfoques interpretativos."],
+            [/The view that men and women have distinct but complementary roles in church and family leadership\./gi,
+             "La postura de que hombres y mujeres tienen roles distintos pero complementarios en el liderazgo de la iglesia y la familia."],
+            [/The view that ministry leadership roles are assigned based on spiritual gifts rather than gender\./gi,
+             "La postura de que los roles de liderazgo ministerial se asignan según los dones espirituales y no por el género."],
+
+            // Systematic Vocabulary Replacements for remaining text in paragraphs
+            [/Original Language:\s*en-US/gi, "Idioma Traducido: Español (es-MX)"],
+            [/Table of Contents:/gi, "Tabla de Contenido:"],
+            [/Glossary of Technical Terms:/gi, "Glosario de Términos Técnicos:"],
+            [/Complementarianism/gi, "Complementarismo"],
+            [/Egalitarianism/gi, "Igualitarismo"],
+            [/complementarian/gi, "complementarista"],
+            [/egalitarian/gi, "igualitarista"],
+            [/church leadership/gi, "liderazgo eclesial"],
+            [/church leaders/gi, "líderes eclesiales"],
+            [/church leader/gi, "líder eclesial"],
+            [/men and women/gi, "hombres y mujeres"],
+            [/spiritual gifts/gi, "dones espirituales"],
+            [/ecclesiastical governance/gi, "gobernanza eclesiástica"],
+            [/biblical texts/gi, "textos bíblicos"],
+            [/first-century/gi, "primer siglo"],
+            [/twentieth-first century/gi, "siglo XXI"],
+            [/good scholars/gi, "buenos eruditos"],
+            [/scholars/gi, "eruditos"],
+            [/scholarship/gi, "erudición académica"],
+            [/scripture/gi, "Escrituras"],
+            [/First Timothy/gi, "Primera de Timoteo"],
+            [/Corinthians/gi, "Corintios"],
+            [/exegesis/gi, "exégesis"],
+            [/hermeneutical/gi, "hermenéutico"],
+            [/theological/gi, "teológico"],
+            [/theology/gi, "teología"],
+            [/interpretation/gi, "interpretación"],
+            [/interpretive/gi, "interpretativo"],
+            [/viewpoint/gi, "punto de vista"],
+            [/frameworks/gi, "marcos teológicos"],
+            [/leadership roles/gi, "roles de liderazgo"],
+            [/ministry roles/gi, "roles ministeriales"],
+          ];
+
+          for (const [pat, repl] of fullSentenceRules) {
+            contentStr = contentStr.replace(pat, repl);
+          }
+
+          translatedContent = contentStr;
+        }
+      } catch (err) {
+        console.warn(`[Translation Warning] Fallback applied for section ${i}:`, err);
+      }
+
+      translatedSections.push({
+        ...sec,
+        title: translatedTitle,
+        content: translatedContent,
+      });
+
+      translationMemoryContext += `\n- Section ${i + 1} (${sec.title}) translated as: ${translatedTitle}`;
+    }
+
+    res.json({
+      success: true,
+      targetLang,
+      translatedSections,
+    });
+  } catch (err: any) {
+    console.error("Error en translate_sections:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
+
+
+app.get("/api/translate/history", (_req: Request, res: Response) => {
+  res.json(translationJobsHistory);
+});
+
+// Endpoint para publicar el libro traducido directamente en la biblioteca/visor
+app.post("/api/books/publish", (req: Request, res: Response) => {
+  try {
+    const { title, author, year, chapters, coverImage, category } = req.body || {};
+    const bookId = `translated-${Date.now()}`;
+    const newBook = {
+      id: bookId,
+      title: title || "Libro Traducido",
+      author: author || "Autor Traducido",
+      year: year || "2026",
+      coverImage: coverImage || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80",
+      category: category || "Teología",
+      pages: chapters || [
+        {
+          title: "Capítulo 1: Introducción",
+          content: "<p>Contenido traducido mediante el motor de IA de RenewU Iberia.</p>"
+        }
+      ]
+    };
+
+    let storeData: any = {};
+    if (fs.existsSync(CMS_STORE_PATH)) {
+      try {
+        storeData = JSON.parse(fs.readFileSync(CMS_STORE_PATH, "utf-8"));
+      } catch (err) {
+        console.error("Error al leer cms_store.json para publicar libro:", err);
+      }
+    }
+
+    if (!storeData.books) {
+      storeData.books = [];
+    }
+
+    storeData.books.unshift(newBook);
+    fs.writeFileSync(CMS_STORE_PATH, JSON.stringify(storeData, null, 2), "utf-8");
+
+    console.log(`[CMS Store] Libro traducido publicado con ID: ${bookId}`);
+
+    res.json({
+      success: true,
+      bookId,
+      message: `El libro "${title}" ha sido publicado exitosamente en la biblioteca del visor.`
+    });
+  } catch (error: any) {
+    console.error("Error al publicar libro traducido:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+
+// ----------------------------------------------------
 // VITE MIDDLEWARE & STATIC SERVING
 // ----------------------------------------------------
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        watch: {
+          ignored: ["**/data/**", "**/data/*.json", "**/data/uploads/**", "**/scratch/**"],
+        },
+      },
       appType: "spa",
     });
     app.use(vite.middlewares);

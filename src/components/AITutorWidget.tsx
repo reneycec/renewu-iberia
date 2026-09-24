@@ -98,13 +98,32 @@ export const AITutorWidget: React.FC<AITutorWidgetProps> = ({ t }) => {
             </div>
           </div>
 
-          <button
-            onClick={() => setMessages([messages[0]])}
-            className="text-xs text-gray-400 hover:text-[#D6B858] flex items-center gap-1 transition-colors"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>Reiniciar Chat</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                const msg: ChatMessage = {
+                  id: `usr-human-${Date.now()}`,
+                  sender: "bot",
+                  text: "💬 Solicitud de Asistencia Humana recibida. Un Asesor Académico de RenewU Iberia se pondrá en contacto contigo a través de WhatsApp / Email en breve. También puedes escribirnos directamente a soporte@renewu-iberia.com o +34 612 345 678.",
+                  timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                };
+                setMessages(prev => [...prev, msg]);
+              }}
+              className="text-xs bg-[#D6B858] text-[#1A1A19] hover:bg-[#c3a447] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
+              title="Solicitar atención con un Asesor Humano"
+            >
+              <User className="w-3.5 h-3.5" />
+              <span>Contactar Asesor Humano</span>
+            </button>
+
+            <button
+              onClick={() => setMessages([messages[0]])}
+              className="text-xs text-gray-400 hover:text-[#D6B858] flex items-center gap-1 transition-colors"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Reiniciar</span>
+            </button>
+          </div>
         </div>
 
         {/* Quick Prompts Bar */}

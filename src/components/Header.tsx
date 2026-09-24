@@ -183,9 +183,34 @@ export const Header: React.FC<HeaderProps> = ({
             <span>{t.navAITutor}</span>
           </button>
 
+          {/* Book Reader Viewer Navigation Tab */}
+          <button
+            onClick={() => onViewChange("book_reader")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+              currentView === "book_reader"
+                ? "text-[#725c00] bg-[#D6B858]/20 border-b-2 border-[#D6B858] font-bold"
+                : "text-gray-600 hover:text-[#725c00] hover:bg-gray-100"
+            }`}
+          >
+            <BookOpen className="w-4 h-4 text-[#D6B858]" />
+            <span>Libros del Curso</span>
+          </button>
+
           {/* Protected Admin Tabs - Visible ONLY when logged in as Admin */}
           {isAdmin && (
             <>
+              <button
+                onClick={() => onViewChange("book_admin")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+                  currentView === "book_admin"
+                    ? "text-[#725c00] bg-[#D6B858]/30 border-b-2 border-[#D6B858] font-bold shadow-xs"
+                    : "text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200"
+                }`}
+              >
+                <BookOpen className="w-4 h-4 text-[#D6B858]" />
+                <span>Gestión Libros</span>
+              </button>
+
               <button
                 onClick={() => onViewChange("moodle_admin")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all cursor-pointer ${
@@ -220,6 +245,18 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <Edit3 className="w-4 h-4 text-[#D6B858]" />
                 <span>{t.navCMSEditor}</span>
+              </button>
+
+              <button
+                onClick={() => onViewChange("book_translator")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+                  currentView === "book_translator"
+                    ? "text-[#725c00] bg-[#D6B858]/30 border-b-2 border-[#D6B858] font-bold shadow-xs"
+                    : "text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 font-bold"
+                }`}
+              >
+                <Globe className="w-4 h-4 text-[#D6B858]" />
+                <span>Traductor IA (Admin)</span>
               </button>
             </>
           )}
