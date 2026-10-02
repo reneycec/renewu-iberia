@@ -10,7 +10,7 @@ export const DEFAULT_FACULTY: FacultyMember[] = [
     bioEn: "Bobby Harrington is the point-leader of RENEW.org and Discipleship.org. He has an M.A.R. and M.Div. from Harding School of Theology and a Doctor of Ministry degree from Southern Baptist Theological Seminary. Author of more than 12 books on discipleship.",
     image: "https://renewuniversity.org/wp-content/uploads/2025/04/Bobby-Harrington-Headshot.jpg",
     externalLink: "https://renewuniversity.org/about/faculty",
-    coursesTaught: ["701", "1004"],
+    coursesTaught: ["701", "1003"],
     email: "bobby@renew.org"
   },
   {
@@ -94,7 +94,7 @@ export const DEFAULT_FACULTY: FacultyMember[] = [
     bioEn: "Josh Branham is Lead Pastor of Hill City Church in Boise, Idaho. Earned an M.A. in Christian Ministry from Grand Canyon University and is the author of 'What Are You Waiting For?'.",
     image: "https://renewuniversity.org/wp-content/uploads/2026/05/JoshuaBranhamHeadshot-1024x1024.jpg",
     externalLink: "https://joshuabranham.com",
-    coursesTaught: ["1001", "1002"],
+    coursesTaught: ["1001"],
     email: "josh@hillcityboise.com"
   },
   {
@@ -106,7 +106,7 @@ export const DEFAULT_FACULTY: FacultyMember[] = [
     bioEn: "Dr. Kelvin E. Teamer serves as Adults Minister at North Boulevard Church of Christ. Holds an M.Div. and Doctor of Ministry from Amridge University. Author of 'Kingdom Life'.",
     image: "https://renewuniversity.org/wp-content/uploads/2025/11/Untitled-design-3-1-1024x1024.png",
     externalLink: "https://renewuniversity.org/about/faculty",
-    coursesTaught: ["1003"],
+    coursesTaught: ["1002"],
     email: "kelvin.teamer@northboulevard.com"
   },
   {
@@ -135,7 +135,7 @@ export const DEFAULT_FACULTY: FacultyMember[] = [
   }
 ];
 
-const FACULTY_STORAGE_KEY = "renewu_faculty_members_v4";
+const FACULTY_STORAGE_KEY = "renewu_faculty_members_v5";
 
 export function getStoredFaculty(): FacultyMember[] {
   try {

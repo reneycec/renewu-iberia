@@ -212,7 +212,7 @@ export const DEFAULT_COURSES: Course[] = [
     id: "M103",
     moodleCourseId: 12,
     code: "1001",
-    title: "Formación espiritual I",
+    title: "Formación espiritual",
     category: "Ministerio Práctico",
     credits: 3,
     description: "Prácticas y disciplinas espirituales cristianas (oración, ayuno, meditación bíblica, soledad y silencio) para una transformación personal profunda y madurez duradera en Cristo.",
@@ -235,29 +235,6 @@ export const DEFAULT_COURSES: Course[] = [
     id: "M1002",
     moodleCourseId: 13,
     code: "1002",
-    title: "Formación Espiritual II",
-    category: "Ministerio Práctico",
-    credits: 3,
-    description: "Continuación avanzada de la formación espiritual aplicada a la vida en comunidad, mentoría relacional, discernimiento espiritual y liderazgo centrado en la gracia de Dios.",
-    detailedSyllabus: [
-      "Unidad 1: La comunidad cristiana como fragua de carácter espiritual",
-      "Unidad 2: Discernimiento bíblico comunitario y toma de decisiones",
-      "Unidad 3: Mentoría espiritual y acompañamiento en el camino de la fe",
-      "Unidad 4: El legado espiritual y la perseverancia ministerial"
-    ],
-    startDate: "2027-03-15",
-    endDate: "2027-04-30",
-    registrationDeadline: "2027-03-05",
-    instructor: "Josh Branham",
-    priceSingle: 59,
-    moodleShortname: "1002",
-    status: "activo",
-    bannerBg: "from-amber-950 to-slate-900"
-  },
-  {
-    id: "M1003",
-    moodleCourseId: 14,
-    code: "1003",
     title: "Introducción al asesoramiento en situaciones de crisis",
     category: "Ministerio Práctico",
     credits: 3,
@@ -268,19 +245,19 @@ export const DEFAULT_COURSES: Course[] = [
       "Unidad 3: Intervención pastoral en duelo, trauma y crisis conyugales",
       "Unidad 4: Ética del consejero, confidencialidad y derivación responsable"
     ],
-    startDate: "2027-04-01",
-    endDate: "2027-05-15",
-    registrationDeadline: "2027-03-22",
+    startDate: "2027-03-15",
+    endDate: "2027-04-30",
+    registrationDeadline: "2027-03-05",
     instructor: "Dr. Kelvin Teamer",
     priceSingle: 59,
-    moodleShortname: "1003",
+    moodleShortname: "1002",
     status: "activo",
     bannerBg: "from-zinc-900 to-amber-950"
   },
   {
-    id: "M1004",
-    moodleCourseId: 15,
-    code: "1004",
+    id: "M1003",
+    moodleCourseId: 14,
+    code: "1003",
     title: "Hacer discípulos: La misión central de la Iglesia",
     category: "Ministerio Práctico",
     credits: 3,
@@ -291,18 +268,18 @@ export const DEFAULT_COURSES: Course[] = [
       "Unidad 3: Grupos de discipulado relacional: estructura, dinámica y multiplicación",
       "Unidad 4: Transformación de la cultura eclesial hacia una misión discipuladora"
     ],
-    startDate: "2027-04-15",
-    endDate: "2027-05-30",
-    registrationDeadline: "2027-04-05",
+    startDate: "2027-04-01",
+    endDate: "2027-05-15",
+    registrationDeadline: "2027-03-22",
     instructor: "Dr. Bobby Harrington",
     priceSingle: 59,
-    moodleShortname: "1004",
+    moodleShortname: "1003",
     status: "activo",
     bannerBg: "from-amber-900 to-[#1A1A19]"
   }
 ];
 
-const STORAGE_KEY = "renewu_courses_catalog_v5";
+const STORAGE_KEY = "renewu_courses_catalog_v6";
 
 export function getStoredCourses(): Course[] {
   try {

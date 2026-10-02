@@ -383,7 +383,7 @@ export const AboutRenewU: React.FC<AboutRenewUProps> = ({ onViewChange }) => {
               <span className="text-[#D6B858] font-black text-lg block">03</span>
               <h5 className="font-bold text-sm text-white">Mentoría en Crisis</h5>
               <p className="text-[11px] text-gray-400 leading-relaxed">
-                Acompañamiento especializado basado en el curso 1003 para prevenir el agotamiento pastoral y gestionar situaciones críticas en el ministerio.
+                Acompañamiento especializado basado en el curso 1002 para prevenir el agotamiento pastoral y gestionar situaciones críticas en el ministerio.
               </p>
             </div>
           </div>
