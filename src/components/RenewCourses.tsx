@@ -183,9 +183,15 @@ export const RenewCourses: React.FC<RenewCoursesProps> = ({
                   <span className="bg-[#D6B858] text-[#1A1A19] font-black text-xs px-2.5 py-0.5 rounded uppercase tracking-wider">
                     {course.code}
                   </span>
-                  <span className="text-[11px] bg-black/40 text-gray-200 px-2.5 py-0.5 rounded-full font-mono border border-white/10">
-                    Moodle ID: #{course.moodleCourseId}
-                  </span>
+                  {course.status === "archivado" ? (
+                    <span className="text-[11px] bg-amber-900/60 text-amber-200 px-2.5 py-0.5 rounded-full font-bold border border-amber-500/30">
+                      No ofrecido en Iberia
+                    </span>
+                  ) : (
+                    <span className="text-[11px] bg-black/40 text-gray-200 px-2.5 py-0.5 rounded-full font-mono border border-white/10">
+                      Moodle ID: #{course.moodleCourseId}
+                    </span>
+                  )}
                 </div>
                 <h3 className="font-bold text-lg md:text-xl text-white leading-snug group-hover:text-[#D6B858] transition-colors">
                   {course.title}
@@ -224,19 +230,25 @@ export const RenewCourses: React.FC<RenewCoursesProps> = ({
                       <UserCheck className="w-3.5 h-3.5 text-[#D6B858]" />
                       Catedrático:
                     </span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setInstructorImgError(false);
-                        const fac = getFacultyByName(course.instructor);
-                        if (fac) setSelectedInstructorModal(fac);
-                      }}
-                      className="font-semibold text-[#725c00] hover:text-[#1A1A19] hover:underline flex items-center gap-1 cursor-pointer text-xs"
-                      title="Ver biografía del catedrático"
-                    >
-                      <span>{course.instructor}</span>
-                      <ExternalLink className="w-3 h-3 text-[#D6B858]" />
-                    </button>
+                    {course.status === "archivado" || course.instructor.includes("No disponible") ? (
+                      <span className="font-medium text-gray-400 text-xs italic">
+                        Sin instructor local
+                      </span>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setInstructorImgError(false);
+                          const fac = getFacultyByName(course.instructor);
+                          if (fac) setSelectedInstructorModal(fac);
+                        }}
+                        className="font-semibold text-[#725c00] hover:text-[#1A1A19] hover:underline flex items-center gap-1 cursor-pointer text-xs"
+                        title="Ver biografía del catedrático"
+                      >
+                        <span>{course.instructor}</span>
+                        <ExternalLink className="w-3 h-3 text-[#D6B858]" />
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -246,7 +258,13 @@ export const RenewCourses: React.FC<RenewCoursesProps> = ({
             <div className="p-5 bg-gray-50 border-t border-gray-200 flex items-center justify-between gap-3">
               <div>
                 <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold block">Inversión</span>
-                <span className="text-lg font-black text-[#1A1A19]">${course.priceSingle} <span className="text-xs text-gray-500 font-normal">USD</span></span>
+                <span className="text-lg font-black text-[#1A1A19]">
+                  {course.status === "archivado" ? (
+                    <span className="text-sm font-semibold text-gray-400">N/D</span>
+                  ) : (
+                    <>${course.priceSingle} <span className="text-xs text-gray-500 font-normal">USD</span></>
+                  )}
+                </span>
               </div>
 
               <div className="flex items-center gap-2">
@@ -256,13 +274,19 @@ export const RenewCourses: React.FC<RenewCoursesProps> = ({
                 >
                   Syllabus
                 </button>
-                <button
-                  onClick={() => handleEnrollClick(course)}
-                  className="px-3.5 py-2 text-xs font-extrabold text-[#1A1A19] bg-[#D6B858] hover:bg-[#c3a447] rounded-lg shadow-xs transition-all flex items-center gap-1 active:scale-95 cursor-pointer"
-                >
-                  <span>Inscribirme</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
+                {course.status === "archivado" ? (
+                  <span className="px-3 py-2 text-xs font-semibold text-gray-400 bg-gray-200 rounded-lg cursor-not-allowed">
+                    No disponible
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => handleEnrollClick(course)}
+                    className="px-3.5 py-2 text-xs font-extrabold text-[#1A1A19] bg-[#D6B858] hover:bg-[#c3a447] rounded-lg shadow-xs transition-all flex items-center gap-1 active:scale-95 cursor-pointer"
+                  >
+                    <span>Inscribirme</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                )}
               </div>
             </div>
           </div>

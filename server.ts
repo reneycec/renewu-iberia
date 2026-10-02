@@ -6,6 +6,14 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 import { DEFAULT_FACULTY } from "./src/data/facultyData";
+import {
+  getMoodleCourses,
+  syncStudentToMoodle,
+  testMoodleConnection,
+  resolveMoodleCourseId,
+  DEFAULT_MOODLE_COURSE_ID,
+  getMoodleCredentials,
+} from "./src/services/moodleService";
 
 dotenv.config();
 
@@ -135,10 +143,10 @@ interface MoodleConfig {
 }
 
 let moodleConfig: MoodleConfig = {
-  moodleUrl: "https://campus.renewu-iberia.com/webservice/rest/server.php",
-  wsToken: "wstoken_demo_renewu_9876543210",
+  moodleUrl: process.env.MOODLE_URL || "https://campus.renewu-iberia.com/webservice/rest/server.php",
+  wsToken: process.env.MOODLE_WS_TOKEN || "23249f3647d12df422b98e3ee56e6201",
   autoSyncOnPayment: true,
-  defaultCourseId: 101, // Certificado en Teología - Curso 1
+  defaultCourseId: DEFAULT_MOODLE_COURSE_ID, // 101 Jesús y los Evangelios (Moodle ID 3)
 };
 
 
@@ -294,24 +302,44 @@ app.post("/api/enrollment", (req: Request, res: Response) => {
   }
 });
 
-// POST Payment Checkout (Stripe Multi-Region Simulation)
-app.post("/api/payment/checkout", (req: Request, res: Response) => {
+// POST Payment Checkout (Stripe Multi-Region Simulation + Real Moodle Enrollment)
+app.post("/api/payment/checkout", async (req: Request, res: Response) => {
   try {
     const { studentId, plan, paymentMethod, cardDetails, region } = req.body;
     
     const student = studentDatabase.find(s => s.id === studentId || s.email === req.body.email);
-    
     const targetStudent = student || studentDatabase[0];
+
+    let moodleSyncResult: any = null;
+
     if (targetStudent) {
       targetStudent.paymentPlan = plan === "single_course" ? "single_course" : "full_program";
       targetStudent.paymentAmount = plan === "single_course" ? 59 : 709;
       targetStudent.paymentStatus = plan === "single_course" ? "paid_single" : "paid_full";
       
-      // Auto Sync with Moodle if enabled
-      if (moodleConfig.autoSyncOnPayment && targetStudent.moodleSyncStatus !== "synced") {
-        targetStudent.moodleSyncStatus = "synced";
-        targetStudent.moodleUserId = Math.floor(1000 + Math.random() * 9000);
-        targetStudent.moodleSyncedAt = new Date().toISOString();
+      // Auto Sync with real Moodle LMS if enabled
+      if (moodleConfig.autoSyncOnPayment) {
+        try {
+          const syncRes = await syncStudentToMoodle({
+            id: targetStudent.id,
+            moodleUsername: targetStudent.moodleUsername,
+            email: targetStudent.email,
+            firstName: targetStudent.firstName,
+            lastName: targetStudent.lastName,
+            city: targetStudent.city,
+            country: targetStudent.country,
+            moodleCourseId: targetStudent.moodleCourseId || moodleConfig.defaultCourseId,
+          });
+
+          targetStudent.moodleSyncStatus = "synced";
+          targetStudent.moodleUserId = syncRes.moodleUserId;
+          targetStudent.moodleSyncedAt = new Date().toISOString();
+          moodleSyncResult = syncRes;
+        } catch (syncErr: any) {
+          console.error("[Moodle Auto-Sync on Payment Error]:", syncErr.message);
+          targetStudent.moodleSyncStatus = "error";
+          moodleSyncResult = { error: syncErr.message };
+        }
       }
     }
 
@@ -329,7 +357,9 @@ app.post("/api/payment/checkout", (req: Request, res: Response) => {
         status: targetStudent?.moodleSyncStatus,
         moodleUserId: targetStudent?.moodleUserId,
         moodleUsername: targetStudent?.moodleUsername,
-        enrolledCourse: "Certificado en Teología - RenewU (6 Semanas)",
+        moodleCourseId: targetStudent?.moodleCourseId || moodleConfig.defaultCourseId,
+        enrolledCourse: "Certificado en Teología - RenewU",
+        liveDetails: moodleSyncResult,
       }
     });
   } catch (error: any) {
@@ -337,45 +367,101 @@ app.post("/api/payment/checkout", (req: Request, res: Response) => {
   }
 });
 
-// POST Trigger Moodle REST API Sync (`core_user_create_users` simulation)
-app.post("/api/moodle/sync", (req: Request, res: Response) => {
+// POST Trigger Real Moodle REST API Sync
+app.post("/api/moodle/sync", async (req: Request, res: Response) => {
   try {
     const { studentIds } = req.body;
-    
     const syncedResults: any[] = [];
-    
-    studentDatabase.forEach((student) => {
-      if (!studentIds || studentIds.includes(student.id)) {
+    const errors: any[] = [];
+
+    const targetStudents = studentDatabase.filter((s) => !studentIds || studentIds.includes(s.id));
+
+    for (const student of targetStudents) {
+      try {
+        const syncRes = await syncStudentToMoodle({
+          id: student.id,
+          moodleUsername: student.moodleUsername,
+          email: student.email,
+          firstName: student.firstName,
+          lastName: student.lastName,
+          city: student.city,
+          country: student.country,
+          moodleCourseId: student.moodleCourseId || moodleConfig.defaultCourseId,
+        });
+
         student.moodleSyncStatus = "synced";
-        if (!student.moodleUserId) {
-          student.moodleUserId = Math.floor(1000 + Math.random() * 9000);
-        }
+        student.moodleUserId = syncRes.moodleUserId;
         student.moodleSyncedAt = new Date().toISOString();
-        
+
         syncedResults.push({
-          id: student.moodleUserId,
-          username: student.moodleUsername,
+          id: syncRes.moodleUserId,
+          studentId: student.id,
+          username: syncRes.moodleUsername,
           email: student.email,
           firstname: student.firstName,
           lastname: student.lastName,
-          moodleCourseEnrolled: student.moodleCourseId,
-          customfields: [
-            { type: "church", value: student.localChurch },
-            { type: "ministry", value: student.ministryInvolvement },
-            { type: "payment_status", value: student.paymentStatus }
-          ]
+          moodleCourseEnrolled: syncRes.moodleCourseId,
+          enrolled: syncRes.enrolled,
+          isNewUser: syncRes.isNewUser,
+        });
+      } catch (err: any) {
+        student.moodleSyncStatus = "error";
+        errors.push({
+          studentId: student.id,
+          username: student.moodleUsername,
+          email: student.email,
+          error: err.message,
         });
       }
-    });
+    }
 
     res.json({
-      success: true,
-      message: `${syncedResults.length} usuario(s) sincronizado(s) exitosamente con la API REST de Moodle.`,
+      success: errors.length === 0 || syncedResults.length > 0,
+      message: `${syncedResults.length} usuario(s) sincronizado(s) exitosamente con la API REST de Moodle.${errors.length > 0 ? ` (${errors.length} fallaron)` : ""}`,
       moodleResponse: syncedResults,
+      errors: errors.length > 0 ? errors : undefined,
       moodleEndpoint: moodleConfig.moodleUrl,
     });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// GET Live Moodle Connection Status & Courses
+app.get("/api/moodle/status", async (_req: Request, res: Response) => {
+  try {
+    const status = await testMoodleConnection();
+    res.json(status);
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.get("/api/moodle/courses", async (_req: Request, res: Response) => {
+  try {
+    const courses = await getMoodleCourses();
+    res.json({ success: true, courses });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET & POST Moodle Config
+app.get("/api/moodle/config", (_req: Request, res: Response) => {
+  res.json({ success: true, config: moodleConfig });
+});
+
+app.post("/api/moodle/config", (req: Request, res: Response) => {
+  try {
+    const { moodleUrl, wsToken, autoSyncOnPayment, defaultCourseId } = req.body;
+    if (moodleUrl) moodleConfig.moodleUrl = moodleUrl;
+    if (wsToken) moodleConfig.wsToken = wsToken;
+    if (autoSyncOnPayment !== undefined) moodleConfig.autoSyncOnPayment = !!autoSyncOnPayment;
+    if (defaultCourseId) moodleConfig.defaultCourseId = Number(defaultCourseId);
+
+    res.json({ success: true, message: "Configuración de Moodle actualizada", config: moodleConfig });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 

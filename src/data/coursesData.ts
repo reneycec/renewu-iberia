@@ -1,285 +1,373 @@
 import { Course } from "../types";
 
 export const DEFAULT_COURSES: Course[] = [
+  // ==========================================
+  // CURSOS OFRECIDOS EN RENEWU IBERIA (CONECTADOS A MOODLE)
+  // ==========================================
   {
-    id: "S101",
-    moodleCourseId: 101,
-    code: "S101",
-    title: "Introducción a la Teología Cristiana",
-    category: "Teología Sistemática",
+    id: "C101",
+    moodleCourseId: 3,
+    code: "101",
+    title: "Jesús y los Evangelios",
+    category: "Estudios Bíblicos",
     credits: 3,
-    description: "Estudio fundamental de las doctrinas cristianas esenciales, la naturaleza de la revelación divina, las escrituras sagradas y la metodología del pensamiento teológico bíblico centrado en Cristo.",
+    description: "Estudio exhaustivo de la vida, enseñanzas, ministerio, muerte y resurrección de Jesucristo a través del testimonio de los cuatro Evangelios, con enfoque en el discipulado centrado en el Rey Jesús.",
     detailedSyllabus: [
-      "Unidad 1: Definición y método de la teología cristiana",
-      "Unidad 2: Revelación general vs. Revelación especial",
-      "Unidad 3: La autoridad e inerrancia de las Escrituras",
-      "Unidad 4: Aplicación teológica en la vida práctica y la iglesia"
+      "Unidad 1: Contexto histórico del primer siglo y naturaleza de los Evangelios",
+      "Unidad 2: El Reino de Dios y las enseñanzas esenciales de Jesús",
+      "Unidad 3: Pasión, Cruz, Expiación y la Resurrección corporal",
+      "Unidad 4: Discipulado basado en la obediencia al Rey Jesús"
     ],
     startDate: "2026-09-01",
     endDate: "2026-10-15",
     registrationDeadline: "2026-08-25",
-    instructor: "Dr. Bobby Harrington",
+    instructor: "Dr. David Young",
     priceSingle: 59,
-    moodleShortname: "RENEW-S101",
+    moodleShortname: "101",
     status: "activo",
     bannerBg: "from-amber-900 to-amber-950"
   },
   {
-    id: "B101",
-    moodleCourseId: 102,
-    code: "B101",
-    title: "Hermenéutica y Metodología Bíblica",
-    category: "Estudios Bíblicos",
+    id: "M102",
+    moodleCourseId: 4,
+    code: "201",
+    title: "Evidencias cristianas y Apologética",
+    category: "Historia y Apologética",
     credits: 3,
-    description: "Principios exegéticos y reglas de interpretación para comprender contextualmente el texto bíblico en sus idiomas y géneros literarios originales, aplicándolo fielmente al contexto moderno.",
+    description: "Defensa bíblica, racional e histórica de la fe cristiana. Análisis riguroso de la existencia de Dios, la fiabilidad de los manuscritos y la historicidad de la resurrección.",
     detailedSyllabus: [
-      "Unidad 1: Historia de la interpretación bíblica",
-      "Unidad 2: Contexto histórico, cultural y gramatical",
-      "Unidad 3: Géneros literarios (Narrativa, Poesía, Epístolas, Apocalíptica)",
-      "Unidad 4: De la exégesis a la aplicación contemporánea"
+      "Unidad 1: Fundamentos epistémicos de las evidencias cristianas",
+      "Unidad 2: Argumentos filosóficos y científicos sobre la creación y el diseño",
+      "Unidad 3: La evidencia histórica de la resurrección de Jesucristo",
+      "Unidad 4: Respuestas apologéticas frente al escepticismo contemporáneo"
     ],
     startDate: "2026-09-15",
     endDate: "2026-10-30",
     registrationDeadline: "2026-09-08",
-    instructor: "Dr. Chad Ragsdale",
+    instructor: "Dr. Zach Breitenbach",
     priceSingle: 59,
-    moodleShortname: "RENEW-B101",
+    moodleShortname: "201",
+    status: "activo",
+    bannerBg: "from-indigo-950 to-[#1A1A19]"
+  },
+  {
+    id: "B101",
+    moodleCourseId: 6,
+    code: "301",
+    title: "La Biblia, el canon, la inspiración y la hermenéutica",
+    category: "Estudios Bíblicos",
+    credits: 3,
+    description: "Análisis histórico-teológico sobre la formación del canon de las Escrituras, la doctrina de la inspiración e inerrancia bíblica, y los principios exegéticos para una fiel interpretación.",
+    detailedSyllabus: [
+      "Unidad 1: Formación y reconocimiento del canon del AT y NT",
+      "Unidad 2: Doctrina de la inspiración divina y autoridad de la Palabra",
+      "Unidad 3: Métodos exegéticos y análisis de géneros literarios bíblicos",
+      "Unidad 4: Hermenéutica práctica aplicada a la predicación y enseñanza"
+    ],
+    startDate: "2026-10-01",
+    endDate: "2026-11-15",
+    registrationDeadline: "2026-09-22",
+    instructor: "Dr. Orpheus J. Heyward",
+    priceSingle: 59,
+    moodleShortname: "301",
     status: "activo",
     bannerBg: "from-blue-900 to-slate-900"
   },
   {
     id: "B102",
-    moodleCourseId: 103,
-    code: "B102",
+    moodleCourseId: 5,
+    code: "401",
     title: "Panorama del Antiguo Testamento",
     category: "Estudios Bíblicos",
     credits: 3,
-    description: "Recorrido teológico e histórico del Pentateuco, Libros Históricos, Poéticos y Proféticos, trazando el pacto de Dios con Israel y la promesa mesiánica.",
+    description: "Recorrido teológico e histórico del Pentateuco, los Libros Históricos, Poéticos y Proféticos, trazando el pacto divino con Israel y la promesa mesiánica consumada en Cristo.",
     detailedSyllabus: [
-      "Unidad 1: Creación, Caída y Pacto en el Pentateuco",
-      "Unidad 2: Conquista, Monarquía y Exilio en los Históricos",
-      "Unidad 3: Sabiduría y Alabanza en los Libros Poéticos",
-      "Unidad 4: Los Profetas Mayores y Menores y el Mesías Prometido"
-    ],
-    startDate: "2026-10-01",
-    endDate: "2026-11-15",
-    registrationDeadline: "2026-09-22",
-    instructor: "Prof. Antonio García",
-    priceSingle: 59,
-    moodleShortname: "RENEW-B102",
-    status: "proximo",
-    bannerBg: "from-amber-800 to-[#1A1A19]"
-  },
-  {
-    id: "B103",
-    moodleCourseId: 104,
-    code: "B103",
-    title: "Panorama del Nuevo Testamento",
-    category: "Estudios Bíblicos",
-    credits: 3,
-    description: "Análisis del contexto del primer siglo, los Evangelios Sinópticos, la vida de Cristo, el surgimiento de la Iglesia en Hechos, las Epístolas Paulinas y Generales, y el libro de Apocalipsis.",
-    detailedSyllabus: [
-      "Unidad 1: El período intertestamentario y los Evangelios",
-      "Unidad 2: El libro de Hechos y la expansión de la Iglesia",
-      "Unidad 3: Las Epístolas de Pablo: Teología y Praxis",
-      "Unidad 4: Epístolas Generales y la Esperanza Apocalíptica"
+      "Unidad 1: Creación, Caída y Alianzas en el Pentateuco",
+      "Unidad 2: Monarquía, Templo, Profecía y el Exilio babilónico",
+      "Unidad 3: Sabiduría y Alabanza en los Escritos Poéticos",
+      "Unidad 4: Los Profetas Mayores, Menores y la Esperanza Mesiánica"
     ],
     startDate: "2026-10-15",
     endDate: "2026-11-30",
     registrationDeadline: "2026-10-05",
-    instructor: "Dr. David Young",
+    instructor: "Jeff Duerler",
     priceSingle: 59,
-    moodleShortname: "RENEW-B103",
-    status: "proximo",
-    bannerBg: "from-stone-900 to-amber-950"
+    moodleShortname: "401",
+    status: "activo",
+    bannerBg: "from-amber-800 to-[#1A1A19]"
   },
   {
-    id: "S102",
-    moodleCourseId: 105,
-    code: "S102",
-    title: "Teología Sistemática I: Dios y Revelación",
-    category: "Teología Sistemática",
+    id: "C501",
+    moodleCourseId: 7,
+    code: "501",
+    title: "Hechos y el apóstol Pablo",
+    category: "Estudios Bíblicos",
     credits: 3,
-    description: "Estudio exhaustivo de la Teontología (la naturaleza y atributos de Dios), la Doctrina de la Trinidad, la Creación, la Providencia Divina y la Cristología Trinitaria.",
+    description: "Estudio del nacimiento y expansión de la Iglesia Primitiva en el libro de Hechos, los viajes misioneros y la teología apostólica de las primeras comunidades cristianas.",
     detailedSyllabus: [
-      "Unidad 1: Los Atributos Incomunicables y Comunicables de Dios",
-      "Unidad 2: La Trinidad: Un Dios en tres Personas",
-      "Unidad 3: Creación, Ángeles y Providencia",
-      "Unidad 4: La Soberanía de Dios y la responsabilidad humana"
+      "Unidad 1: El derramamiento del Espíritu Santo en Pentecostés",
+      "Unidad 2: La conversión de Saulo y la misión a los gentiles",
+      "Unidad 3: Los viajes misioneros de Pablo y el Concilio de Jerusalén",
+      "Unidad 4: Plantación de iglesias y desafíos misioneros en el Imperio Romano"
     ],
     startDate: "2026-11-01",
     endDate: "2026-12-15",
     registrationDeadline: "2026-10-22",
-    instructor: "Dr. Bobby Harrington",
+    instructor: "Dr. David Young",
     priceSingle: 59,
-    moodleShortname: "RENEW-S102",
+    moodleShortname: "501",
     status: "proximo",
-    bannerBg: "from-amber-950 to-[#1A1A19]"
+    bannerBg: "from-amber-950 to-zinc-900"
   },
   {
-    id: "S103",
-    moodleCourseId: 106,
-    code: "S103",
-    title: "Teología Sistemática II: Cristología y Soteriología",
-    category: "Teología Sistemática",
+    id: "C601",
+    moodleCourseId: 8,
+    code: "601",
+    title: "La Epístola a los Romanos",
+    category: "Estudios Bíblicos",
     credits: 3,
-    description: "Profundización en la persona y obra encarnada de Jesucristo, la Expiación vicaria, la Gracia, la Regeneración, la Justificación por la Fe y la Santificación progresiva.",
+    description: "Exégesis detallada de la carta magna del apóstol Pablo sobre la justicia de Dios, la depravación humana, la justificación por la fe en Cristo, la santificación y la vida en el Espíritu.",
     detailedSyllabus: [
-      "Unidad 1: La Humanidad y Deidad de Jesucristo",
-      "Unidad 2: Teorías de la Expiación y la Cruz",
-      "Unidad 3: Arrepentimiento, Fe y Justificación",
-      "Unidad 4: La obra del Espíritu Santo en la Santificación"
+      "Unidad 1: La necesidad universal del Evangelio (Romanos 1-3)",
+      "Unidad 2: Justificación por la fe y paz con Dios (Romanos 4-5)",
+      "Unidad 3: Libertad del pecado y vida en el Espíritu (Romanos 6-8)",
+      "Unidad 4: El plan de Dios para Israel y la ética comunitaria (Romanos 9-16)"
     ],
     startDate: "2026-11-15",
     endDate: "2026-12-30",
     registrationDeadline: "2026-11-05",
-    instructor: "Dr. Chad Ragsdale",
+    instructor: "Jason Ishmael",
     priceSingle: 59,
-    moodleShortname: "RENEW-S103",
+    moodleShortname: "601",
     status: "proximo",
-    bannerBg: "from-amber-900 to-zinc-900"
+    bannerBg: "from-stone-900 to-amber-950"
   },
   {
-    id: "M101",
-    moodleCourseId: 107,
-    code: "M101",
-    title: "Liderazgo Pastoral y Discipulado Transformativo",
-    category: "Ministerio Práctico",
+    id: "S101",
+    moodleCourseId: 9,
+    code: "701",
+    title: "Teología bíblica",
+    category: "Teología Sistemática",
     credits: 3,
-    description: "Estrategias de discipulado personal y comunitario basadas en el modelo de Jesús, formación de nuevos líderes en la iglesia local y gestión saludable del ministerio pastoral.",
+    description: "Estudio de las grandes doctrinas cristianas a lo largo de toda la narrativa bíblica, centrado en el gobierno de Dios, la redención, el pacto y la victoria de Jesucristo.",
     detailedSyllabus: [
-      "Unidad 1: El modelo relacional de discipulado de Jesús",
-      "Unidad 2: Carácter, espiritualidad y salud del líder pastoral",
-      "Unidad 3: Multiplicación de grupos pequeños y mentores",
-      "Unidad 4: Manejo biblico del conflicto y cuidado del rebaño"
+      "Unidad 1: Definición y método de la teología bíblica",
+      "Unidad 2: Revelación divina y la naturaleza de las Escrituras",
+      "Unidad 3: Cristocentrismo y el propósito redentor de Dios",
+      "Unidad 4: Vivir la teología en la misión cotidiana y la iglesia local"
     ],
     startDate: "2027-01-10",
     endDate: "2027-02-25",
     registrationDeadline: "2027-01-02",
     instructor: "Dr. Bobby Harrington",
     priceSingle: 59,
-    moodleShortname: "RENEW-M101",
+    moodleShortname: "701",
     status: "proximo",
-    bannerBg: "from-emerald-900 to-slate-900"
+    bannerBg: "from-amber-950 to-[#1A1A19]"
   },
   {
-    id: "M102",
-    moodleCourseId: 108,
-    code: "M102",
-    title: "Apologética y Cosmovisión Cristiana",
+    id: "C801",
+    moodleCourseId: 10,
+    code: "801",
+    title: "La historia de la iglesia y la búsqueda de la fe bíblica",
     category: "Historia y Apologética",
     credits: 3,
-    description: "Defensa bíblica y racional de la fe cristiana frente al secularismo, relativismo y escepticismo cultural. Análisis de argumentos sobre la existencia de Dios y la resurrección de Cristo.",
+    description: "Recorrido histórico de la iglesia desde los padres apostólicos, pasando por la Reforma Protestante del siglo XVI, hasta el Movimiento de Restauración y su relevancia actual.",
     detailedSyllabus: [
-      "Unidad 1: Fundamentos teóricos de la apologética",
-      "Unidad 2: El problema del mal y el sufrimiento",
-      "Unidad 3: Argumentos históricos sobre la Resurrección",
-      "Unidad 4: Diálogo apologético en la cultura digital actual"
+      "Unidad 1: La Iglesia Primitiva, mártires y concilios ecuménicos",
+      "Unidad 2: La Reforma del Siglo XVI y el retorno a las Escrituras",
+      "Unidad 3: El Movimiento de Restauración: unidad en la verdad bíblica",
+      "Unidad 4: Lecciones históricas para el liderazgo eclesial de hoy"
     ],
     startDate: "2027-01-25",
     endDate: "2027-03-10",
     registrationDeadline: "2027-01-15",
-    instructor: "Dr. Chad Ragsdale",
+    instructor: "Jason Ishmael",
     priceSingle: 59,
-    moodleShortname: "RENEW-M102",
-    status: "proximo",
-    bannerBg: "from-indigo-950 to-[#1A1A19]"
-  },
-  {
-    id: "M103",
-    moodleCourseId: 109,
-    code: "M103",
-    title: "Ética Cristiana en la Sociedad Actual",
-    category: "Historia y Apologética",
-    credits: 3,
-    description: "Evaluación teológica de dilemas morales contemporáneos, bioética, justicia social, sexualidad bíblica, mayordomía financiera y testimonio cristiano en la esfera pública.",
-    detailedSyllabus: [
-      "Unidad 1: La Ley moral de Dios y el Sermón del Monte",
-      "Unidad 2: Bioética y la santidad de la vida humana",
-      "Unidad 3: Matrimonio, familia y sexualidad bíblica",
-      "Unidad 4: Ética del trabajo, economía y responsabilidad social"
-    ],
-    startDate: "2027-02-10",
-    endDate: "2027-03-25",
-    registrationDeadline: "2027-02-01",
-    instructor: "Prof. Antonio García",
-    priceSingle: 59,
-    moodleShortname: "RENEW-M103",
-    status: "proximo",
-    bannerBg: "from-slate-900 to-amber-950"
-  },
-  {
-    id: "E101",
-    moodleCourseId: 110,
-    code: "E101",
-    title: "Eclesiología y Misión Global",
-    category: "Teología Sistemática",
-    credits: 3,
-    description: "Naturaleza, marcas y ordenanzas de la Iglesia local (Bautismo y Cena del Señor), su estructura organizativa y su papel activo en la Gran Comisión global.",
-    detailedSyllabus: [
-      "Unidad 1: La Iglesia como Cuerpo de Cristo y Templo del Espíritu",
-      "Unidad 2: Las ordenanzas del Bautismo y la Cena del Señor",
-      "Unidad 3: Estructura del liderazgo: Ancianos, Diáconos y Siervos",
-      "Unidad 4: Plantación de iglesias y Misión Transcultural"
-    ],
-    startDate: "2027-03-01",
-    endDate: "2027-04-15",
-    registrationDeadline: "2027-02-20",
-    instructor: "Dr. David Young",
-    priceSingle: 59,
-    moodleShortname: "RENEW-E101",
-    status: "proximo",
-    bannerBg: "from-amber-950 to-neutral-900"
-  },
-  {
-    id: "H101",
-    moodleCourseId: 111,
-    code: "H101",
-    title: "Historia de la Iglesia y del Dogma Cristiano",
-    category: "Historia y Apologética",
-    credits: 3,
-    description: "Estudio de los padres apostólicos, los primeros concilios ecuménicos, la Reforma Protestante del Siglo XVI, los Grandes Despertares y el Movimiento de Restauración.",
-    detailedSyllabus: [
-      "Unidad 1: La Iglesia Primitiva y las Persecuciones Romanas",
-      "Unidad 2: Los Concilios Ecuménicos (Nicea, Calcedonia)",
-      "Unidad 3: La Reforma Protestante (Lutero, Calvino, Zwinglio)",
-      "Unidad 4: El Movimiento de Restauración y los Despertares Modernos"
-    ],
-    startDate: "2027-03-20",
-    endDate: "2027-05-05",
-    registrationDeadline: "2027-03-10",
-    instructor: "Prof. Antonio García",
-    priceSingle: 59,
-    moodleShortname: "RENEW-H101",
+    moodleShortname: "801",
     status: "proximo",
     bannerBg: "from-[#1A1A19] to-amber-900"
   },
   {
-    id: "M104",
-    moodleCourseId: 112,
-    code: "M104",
-    title: "Ministerio Práctico y Homilética Expositiva",
+    id: "M101",
+    moodleCourseId: 11,
+    code: "901",
+    title: "Ministerio y liderazgo cristianos",
     category: "Ministerio Práctico",
     credits: 3,
-    description: "Técnicas y principios de preparación de sermones expositivos biblicamente rigurosos, consejería bíblica básica y dirección de cultos comunitarios inspiradores.",
+    description: "Desarrollo del carácter espiritual del líder cristiano, formación de equipos de discipulado multiplicador, salud ministerial y gobernanza bíblica en la iglesia local.",
     detailedSyllabus: [
-      "Unidad 1: Anatomía de la predicación expositiva",
-      "Unidad 2: Estructura, bosquejo y comunicación oral efectiva",
-      "Unidad 3: Introducción a la Consejería Pastoral Bíblica",
-      "Unidad 4: Proyecto Final de Graduación y Síntesis Teológica"
+      "Unidad 1: El modelo de liderazgo de servicio de Jesús",
+      "Unidad 2: Salud emocional y espiritual del ministro",
+      "Unidad 3: Creación y multiplicación de culturas de discipulado",
+      "Unidad 4: Resolución bíblica de conflictos y mentoría pastoral"
     ],
-    startDate: "2027-04-10",
-    endDate: "2027-05-25",
-    registrationDeadline: "2027-03-30",
-    instructor: "Dr. Bobby Harrington",
+    startDate: "2027-02-10",
+    endDate: "2027-03-25",
+    registrationDeadline: "2027-02-01",
+    instructor: "Dr. Reggie Rice",
     priceSingle: 59,
-    moodleShortname: "RENEW-M104",
+    moodleShortname: "901",
     status: "proximo",
-    bannerBg: "from-zinc-900 to-amber-900"
+    bannerBg: "from-emerald-900 to-slate-900"
+  },
+  {
+    id: "M103",
+    moodleCourseId: 12,
+    code: "1001",
+    title: "Formación espiritual",
+    category: "Ministerio Práctico",
+    credits: 3,
+    description: "Prácticas de disciplinas espirituales cristianas (oración, ayuno, meditación bíblica, soledad y comunidad) para una transformación personal y madurez duradera en Cristo.",
+    detailedSyllabus: [
+      "Unidad 1: La teología de la transformación espiritual",
+      "Unidad 2: Las disciplinas de devoción personal (oración, lectura bíblica)",
+      "Unidad 3: Las disciplinas de comunidad y rendición de cuentas",
+      "Unidad 4: Hábitos para el ministerio sostenible a largo plazo"
+    ],
+    startDate: "2027-03-01",
+    endDate: "2027-04-15",
+    registrationDeadline: "2027-02-20",
+    instructor: "Josh Branham",
+    priceSingle: 59,
+    moodleShortname: "1001",
+    status: "proximo",
+    bannerBg: "from-slate-900 to-amber-950"
+  },
+
+  // ==========================================
+  // CURSOS DE RENEWU.ORG NO OFRECIDOS EN IBERIA
+  // (Observaciones de Rachel: Sin instructores locales / No ofrecidos aquí)
+  // ==========================================
+  {
+    id: "B103",
+    moodleCourseId: 0,
+    code: "B103",
+    title: "Panorama general del Nuevo Testamento",
+    category: "Estudios Bíblicos",
+    credits: 3,
+    description: "Estudio panorámico del Nuevo Testamento en el currículo global de RenewU.org. (Nota: Este curso no se ofrece actualmente en la sede de RenewU Iberia).",
+    detailedSyllabus: [
+      "Materia no impartida en la sede de RenewU Iberia.",
+      "Disponible en el campus global de RenewU.org."
+    ],
+    startDate: "—",
+    endDate: "—",
+    registrationDeadline: "—",
+    instructor: "No disponible (No ofrecido en Iberia)",
+    priceSingle: 59,
+    moodleShortname: "GLOBAL-B103",
+    status: "archivado",
+    bannerBg: "from-neutral-800 to-neutral-900"
+  },
+  {
+    id: "S102",
+    moodleCourseId: 0,
+    code: "S102",
+    title: "Teología Sistemática 1",
+    category: "Teología Sistemática",
+    credits: 3,
+    description: "Doctrina de Dios, la Trinidad y la Creación en el currículo general de RenewU.org. (Nota: Este curso no se ofrece actualmente en la sede de RenewU Iberia).",
+    detailedSyllabus: [
+      "Materia no impartida en la sede de RenewU Iberia.",
+      "Disponible en el campus global de RenewU.org."
+    ],
+    startDate: "—",
+    endDate: "—",
+    registrationDeadline: "—",
+    instructor: "No disponible (No ofrecido en Iberia)",
+    priceSingle: 59,
+    moodleShortname: "GLOBAL-S102",
+    status: "archivado",
+    bannerBg: "from-neutral-800 to-neutral-900"
+  },
+  {
+    id: "S103",
+    moodleCourseId: 0,
+    code: "S103",
+    title: "Teología Sistemática 2",
+    category: "Teología Sistemática",
+    credits: 3,
+    description: "Cristología, Expiación y Soteriología en el currículo general de RenewU.org. (Nota: Este curso no se ofrece actualmente en la sede de RenewU Iberia).",
+    detailedSyllabus: [
+      "Materia no impartida en la sede de RenewU Iberia.",
+      "Disponible en el campus global de RenewU.org."
+    ],
+    startDate: "—",
+    endDate: "—",
+    registrationDeadline: "—",
+    instructor: "No disponible (No ofrecido en Iberia)",
+    priceSingle: 59,
+    moodleShortname: "GLOBAL-S103",
+    status: "archivado",
+    bannerBg: "from-neutral-800 to-neutral-900"
+  },
+  {
+    id: "E101",
+    moodleCourseId: 0,
+    code: "E101",
+    title: "Eclesiología y Misión Global",
+    category: "Teología Sistemática",
+    credits: 3,
+    description: "Naturaleza y misión de la iglesia en el mundo actual. (Nota: Este curso no se ofrece actualmente en la sede de RenewU Iberia).",
+    detailedSyllabus: [
+      "Materia no impartida en la sede de RenewU Iberia.",
+      "Disponible en el campus global de RenewU.org."
+    ],
+    startDate: "—",
+    endDate: "—",
+    registrationDeadline: "—",
+    instructor: "No disponible (No ofrecido en Iberia)",
+    priceSingle: 59,
+    moodleShortname: "GLOBAL-E101",
+    status: "archivado",
+    bannerBg: "from-neutral-800 to-neutral-900"
+  },
+  {
+    id: "H101",
+    moodleCourseId: 0,
+    code: "H101",
+    title: "Historia de la Iglesia",
+    category: "Historia y Apologética",
+    credits: 3,
+    description: "Historia eclesiástica general en el catálogo de RenewU.org. (Nota: Este curso no se ofrece actualmente en la sede de RenewU Iberia).",
+    detailedSyllabus: [
+      "Materia no impartida en la sede de RenewU Iberia.",
+      "Disponible en el campus global de RenewU.org."
+    ],
+    startDate: "—",
+    endDate: "—",
+    registrationDeadline: "—",
+    instructor: "No disponible (No ofrecido en Iberia)",
+    priceSingle: 59,
+    moodleShortname: "GLOBAL-H101",
+    status: "archivado",
+    bannerBg: "from-neutral-800 to-neutral-900"
+  },
+  {
+    id: "M104",
+    moodleCourseId: 0,
+    code: "M104",
+    title: "Ministerio práctico",
+    category: "Ministerio Práctico",
+    credits: 3,
+    description: "Homilética y ministerio práctico general de RenewU.org. (Nota: Este curso no se ofrece actualmente en la sede de RenewU Iberia).",
+    detailedSyllabus: [
+      "Materia no impartida en la sede de RenewU Iberia.",
+      "Disponible en el campus global de RenewU.org."
+    ],
+    startDate: "—",
+    endDate: "—",
+    registrationDeadline: "—",
+    instructor: "No disponible (No ofrecido en Iberia)",
+    priceSingle: 59,
+    moodleShortname: "GLOBAL-M104",
+    status: "archivado",
+    bannerBg: "from-neutral-800 to-neutral-900"
   }
 ];
 
-const STORAGE_KEY = "renewu_courses_catalog_v1";
+const STORAGE_KEY = "renewu_courses_catalog_v2";
 
 export function getStoredCourses(): Course[] {
   try {

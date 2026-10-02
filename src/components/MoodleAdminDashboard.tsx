@@ -18,6 +18,7 @@ export const MoodleAdminDashboard: React.FC = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [syncStatusMsg, setSyncStatusMsg] = useState("");
+  const [testConnStatus, setTestConnStatus] = useState<string>("");
   const [activeTab, setActiveTab] = useState<"users" | "courses" | "config" | "fields" | "hosting">("users");
   const [selectedUserPayload, setSelectedUserPayload] = useState<any | null>(null);
 
@@ -112,6 +113,24 @@ export const MoodleAdminDashboard: React.FC = () => {
       }
     } catch (err: any) {
       setSyncStatusMsg(`Error: ${err.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleTestConnection = async () => {
+    setIsLoading(true);
+    setTestConnStatus("");
+    try {
+      const res = await fetch("/api/moodle/status");
+      const data = await res.json();
+      if (data.success) {
+        setTestConnStatus(`✅ ${data.message}`);
+      } else {
+        setTestConnStatus(`❌ Error de conexión: ${data.message}`);
+      }
+    } catch (err: any) {
+      setTestConnStatus(`❌ Error de red: ${err.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -692,12 +711,31 @@ export const MoodleAdminDashboard: React.FC = () => {
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="bg-[#D6B858] hover:bg-[#c3a447] text-white font-bold text-sm px-6 py-3 rounded-lg uppercase tracking-wider transition-all"
-          >
-            Guardar Configuración Moodle
-          </button>
+          <div className="flex flex-wrap items-center gap-4 pt-2">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="bg-[#D6B858] hover:bg-[#c3a447] text-white font-bold text-sm px-6 py-3 rounded-lg uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50"
+            >
+              Guardar Configuración Moodle
+            </button>
+
+            <button
+              type="button"
+              onClick={handleTestConnection}
+              disabled={isLoading}
+              className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm px-6 py-3 rounded-lg flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+              <span>Probar Conexión en Vivo con Moodle</span>
+            </button>
+          </div>
+
+          {testConnStatus && (
+            <div className={`p-4 rounded-lg text-sm font-semibold border ${testConnStatus.startsWith('✅') ? 'bg-emerald-50 text-emerald-900 border-emerald-300' : 'bg-red-50 text-red-900 border-red-300'}`}>
+              {testConnStatus}
+            </div>
+          )}
         </form>
       )}
 
