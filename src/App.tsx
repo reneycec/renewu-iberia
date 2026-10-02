@@ -190,6 +190,7 @@ export default function App() {
             currentStudent={currentStudent}
             onViewChange={setCurrentView}
             t={t}
+            isAdmin={isAdminAuthenticated}
           />
         )}
 

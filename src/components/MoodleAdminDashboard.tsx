@@ -155,6 +155,16 @@ export const MoodleAdminDashboard: React.FC = () => {
 
         <div className="flex flex-wrap items-center gap-3">
           <a
+            href="https://campus.renewu-iberia.com/admin/"
+            target="_blank"
+            rel="noreferrer"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all shadow-xs"
+            title="Abrir el panel administrativo de Moodle en campus.renewu-iberia.com"
+          >
+            <ExternalLink className="w-4 h-4" />
+            <span>Abrir Moodle Campus Admin</span>
+          </a>
+          <a
             href="/api/moodle/export-csv"
             download
             className="bg-[#D6B858] hover:bg-[#c3a447] text-white font-bold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all shadow-xs"

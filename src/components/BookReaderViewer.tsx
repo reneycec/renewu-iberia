@@ -36,6 +36,7 @@ interface BookReaderViewerProps {
   currentStudent: StudentEnrollment | null;
   onViewChange: (view: ViewMode) => void;
   t: Dictionary;
+  isAdmin?: boolean;
 }
 
 /**
@@ -98,6 +99,7 @@ export const BookReaderViewer: React.FC<BookReaderViewerProps> = ({
   currentStudent,
   onViewChange,
   t,
+  isAdmin = false,
 }) => {
   const [books, setBooks] = useState<BookItem[]>([]);
   const [selectedBookId, setSelectedBookId] = useState<string>("");
@@ -105,6 +107,14 @@ export const BookReaderViewer: React.FC<BookReaderViewerProps> = ({
   const [currentPageIndex, setCurrentPageIndex] = useState<number>(0);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [verificationEmail, setVerificationEmail] = useState<string>("");
+  const [isVerifying, setIsVerifying] = useState<boolean>(false);
+  const [verifiedStudentData, setVerifiedStudentData] = useState<any | null>(() => {
+    if (typeof window !== "undefined") {
+      const stored = sessionStorage.getItem("renewu_reader_student_profile");
+      return stored ? JSON.parse(stored) : null;
+    }
+    return null;
+  });
   const [verificationSuccess, setVerificationSuccess] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
       return sessionStorage.getItem("renewu_reader_student_verified") === "true";
@@ -123,8 +133,8 @@ export const BookReaderViewer: React.FC<BookReaderViewerProps> = ({
   const securityGuard = useMemo(() => SecurityGuard.getInstance(), []);
   const tracker = useMemo(() => StudentReadingTracker.getInstance(), []);
 
-  const studentId = currentStudent?.id || "student-guest-001";
-  const isUserAuthenticated = !!currentStudent || verificationSuccess;
+  const studentId = currentStudent?.id || verifiedStudentData?.id || (isAdmin ? "admin-moodle" : "student-guest-001");
+  const isUserAuthenticated = isAdmin || !!currentStudent || verificationSuccess;
 
   // Fetch Catalog Books
   useEffect(() => {
@@ -197,9 +207,14 @@ export const BookReaderViewer: React.FC<BookReaderViewerProps> = ({
   // Activate / Deactivate Security Guard when viewing reader
   useEffect(() => {
     if (isUserAuthenticated) {
-      const studentName = currentStudent
-        ? `${currentStudent.firstName} ${currentStudent.lastName}`
-        : "Estudiante-Moodle";
+      let studentName = "Estudiante-RenewU";
+      if (isAdmin) {
+        studentName = "ADMINISTRADOR (Acceso Total Moodle)";
+      } else if (currentStudent) {
+        studentName = `${currentStudent.firstName} ${currentStudent.lastName}`;
+      } else if (verifiedStudentData?.name) {
+        studentName = `${verifiedStudentData.name}`;
+      }
       const watermarkInfo = `CONFIDENCIAL — ${studentName} — NO COPIAR`;
 
       securityGuard.enableProtection({
@@ -216,7 +231,7 @@ export const BookReaderViewer: React.FC<BookReaderViewerProps> = ({
     return () => {
       securityGuard.disableProtection();
     };
-  }, [isUserAuthenticated, currentStudent, securityGuard]);
+  }, [isUserAuthenticated, currentStudent, verifiedStudentData, isAdmin, securityGuard]);
 
   // Handle Book Selection Change
   const handleSelectBook = (bookId: string) => {
@@ -246,19 +261,39 @@ export const BookReaderViewer: React.FC<BookReaderViewerProps> = ({
     setTimeout(() => setBookmarkSavedToast(null), 3000);
   };
 
-  // Quick verification for students checking in via email
-  const handleVerifyStudentEmail = (e: React.FormEvent) => {
+  // Real Moodle API student verification
+  const handleVerifyStudentEmail = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!verificationEmail.trim()) {
-      setVerificationError("Por favor ingresa tu correo de registro.");
+    const cleanEmail = verificationEmail.trim().toLowerCase();
+    if (!cleanEmail) {
+      setVerificationError("Por favor ingresa tu correo de registro o el asociado a Moodle.");
       return;
     }
-    if (verificationEmail.includes("@")) {
-      sessionStorage.setItem("renewu_reader_student_verified", "true");
-      setVerificationSuccess(true);
-      setVerificationError("");
-    } else {
-      setVerificationError("Correo electrónico no válido.");
+    
+    setIsVerifying(true);
+    setVerificationError("");
+
+    try {
+      const res = await fetch(`/api/moodle/verify-user?email=${encodeURIComponent(cleanEmail)}`);
+      const data = await res.json();
+
+      if (data.success && data.verified) {
+        sessionStorage.setItem("renewu_reader_student_verified", "true");
+        if (data.student) {
+          sessionStorage.setItem("renewu_reader_student_profile", JSON.stringify(data.student));
+          setVerifiedStudentData(data.student);
+        }
+        setVerificationSuccess(true);
+        setVerificationError("");
+      } else {
+        setVerificationError(
+          data.message || "No encontramos matrícula activa en Moodle ni en el registro académico para este correo."
+        );
+      }
+    } catch (err: any) {
+      setVerificationError(`Error al verificar matrícula: ${err.message || "Fallo de conexión"}`);
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -309,18 +344,32 @@ export const BookReaderViewer: React.FC<BookReaderViewerProps> = ({
                 type="email"
                 placeholder="ejemplo@estudiante.com"
                 value={verificationEmail}
+                disabled={isVerifying}
                 onChange={(e) => setVerificationEmail(e.target.value)}
-                className="w-full bg-white border border-gray-300 rounded-lg p-3 text-sm focus:border-[#D6B858] focus:ring-1 focus:ring-[#D6B858] outline-none"
+                className="w-full bg-white border border-gray-300 rounded-lg p-3 text-sm focus:border-[#D6B858] focus:ring-1 focus:ring-[#D6B858] outline-none disabled:bg-gray-100"
               />
               {verificationError && (
-                <p className="text-xs text-red-600 font-bold">{verificationError}</p>
+                <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-lg font-medium leading-relaxed">
+                  ⚠️ {verificationError}
+                </div>
               )}
               <button
                 type="submit"
-                className="w-full bg-[#1A1A19] hover:bg-gray-800 text-[#D6B858] font-bold text-xs py-3 rounded-lg transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                disabled={isVerifying}
+                className="w-full bg-[#1A1A19] hover:bg-gray-800 disabled:opacity-60 text-[#D6B858] font-bold text-xs py-3 rounded-lg transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>Verificar Acceso de Estudiante</span>
-                <ArrowRight className="w-4 h-4" />
+                {isVerifying ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-[#D6B858] border-t-transparent rounded-full animate-spin" />
+                    <span>Verificando matrícula en Moodle...</span>
+                  </>
+                ) : (
+                  <>
+                    <UserCheck className="w-4 h-4 text-[#D6B858]" />
+                    <span>Verificar Acceso de Estudiante en Moodle</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </button>
             </form>
           </div>
@@ -404,9 +453,14 @@ export const BookReaderViewer: React.FC<BookReaderViewerProps> = ({
     dark: "bg-[#181817] text-[#E0E0DC] border-gray-800",
   };
 
-  const studentDisplayName = currentStudent
-    ? `${currentStudent.firstName} ${currentStudent.lastName}`
-    : "Estudiante-Moodle";
+  let studentDisplayName = "Estudiante-Moodle";
+  if (isAdmin) {
+    studentDisplayName = "ADMINISTRADOR (Acceso Moodle)";
+  } else if (currentStudent) {
+    studentDisplayName = `${currentStudent.firstName} ${currentStudent.lastName}`;
+  } else if (verifiedStudentData?.name) {
+    studentDisplayName = `${verifiedStudentData.name}`;
+  }
 
   const watermarkSVG = securityGuard.generateWatermarkSVG(
     `CONFIDENCIAL — ${studentDisplayName} — NO COPIAR`
@@ -437,7 +491,13 @@ export const BookReaderViewer: React.FC<BookReaderViewerProps> = ({
           <span>Visor Protegido RenewU (Anti-Descarga & DRM Activo)</span>
         </div>
         <div className="hidden sm:flex items-center gap-4 text-[11px] text-gray-400">
-          <span>Estudiante: <strong className="text-white">{studentDisplayName}</strong></span>
+          {isAdmin ? (
+            <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2 py-0.5 rounded font-bold flex items-center gap-1">
+              🔓 Acceso Total Administrador Moodle
+            </span>
+          ) : (
+            <span>Estudiante: <strong className="text-white">{studentDisplayName}</strong></span>
+          )}
           <span>•</span>
           <span className="text-[#D6B858] font-bold">
             📌 Tu Avance: {studentProgress?.progressPercentage || engine.calculateProgress()}%

@@ -13,6 +13,8 @@ import {
   resolveMoodleCourseId,
   DEFAULT_MOODLE_COURSE_ID,
   getMoodleCredentials,
+  getMoodleUserByEmail,
+  getUserEnrolledCourses,
 } from "./src/services/moodleService";
 
 dotenv.config();
@@ -443,6 +445,86 @@ app.get("/api/moodle/courses", async (_req: Request, res: Response) => {
     res.json({ success: true, courses });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET Verify Moodle Student Enrollment (Used by BookReader & Student Validation)
+app.get("/api/moodle/verify-user", async (req: Request, res: Response) => {
+  try {
+    const email = (req.query.email as string || "").trim().toLowerCase();
+    if (!email) {
+      return res.status(400).json({ success: false, verified: false, message: "El correo electrónico es requerido." });
+    }
+
+    // 1. Check in real Moodle REST API
+    try {
+      const moodleUser = await getMoodleUserByEmail(email);
+      if (moodleUser) {
+        const enrolledCourses = await getUserEnrolledCourses(moodleUser.id);
+        return res.json({
+          success: true,
+          verified: true,
+          source: "moodle_api",
+          student: {
+            id: moodleUser.id,
+            username: moodleUser.username,
+            name: moodleUser.fullname || `${moodleUser.firstname} ${moodleUser.lastname}`,
+            email: moodleUser.email,
+            city: moodleUser.city,
+            country: moodleUser.country,
+            enrolledCourses: enrolledCourses.map((c: any) => ({
+              id: c.id,
+              fullname: c.fullname,
+              shortname: c.shortname,
+            })),
+          },
+        });
+      }
+    } catch (moodleErr: any) {
+      console.warn("[Moodle User Verification Warning]:", moodleErr.message);
+    }
+
+    // 2. Check in local student database (for students registered or paid through the portal)
+    const localStudent = studentDatabase.find(
+      (s) => s.email.toLowerCase() === email
+    );
+
+    if (
+      localStudent &&
+      (localStudent.paymentStatus === "paid_full" ||
+        localStudent.paymentStatus === "paid_single" ||
+        localStudent.moodleSyncStatus === "synced")
+    ) {
+      return res.json({
+        success: true,
+        verified: true,
+        source: "portal_database",
+        student: {
+          id: localStudent.moodleUserId || 1,
+          username: localStudent.moodleUsername,
+          name: `${localStudent.firstName} ${localStudent.lastName}`,
+          email: localStudent.email,
+          city: localStudent.city,
+          country: localStudent.country,
+          enrolledCourses: [
+            {
+              id: localStudent.moodleCourseId || 101,
+              fullname: "Certificado en Teología - RenewU",
+              shortname: "RenewU",
+            },
+          ],
+        },
+      });
+    }
+
+    return res.json({
+      success: true,
+      verified: false,
+      message:
+        "No se encontró ninguna matrícula activa en Moodle ni en el registro académico con este correo. Por favor matricúlate o verifica el email ingresado.",
+    });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, verified: false, error: err.message });
   }
 });
 

@@ -1,9 +1,6 @@
 import { Course } from "../types";
 
 export const DEFAULT_COURSES: Course[] = [
-  // ==========================================
-  // CURSOS OFRECIDOS EN RENEWU IBERIA (CONECTADOS A MOODLE)
-  // ==========================================
   {
     id: "C101",
     moodleCourseId: 3,
@@ -116,7 +113,7 @@ export const DEFAULT_COURSES: Course[] = [
     instructor: "Dr. David Young",
     priceSingle: 59,
     moodleShortname: "501",
-    status: "proximo",
+    status: "activo",
     bannerBg: "from-amber-950 to-zinc-900"
   },
   {
@@ -139,7 +136,7 @@ export const DEFAULT_COURSES: Course[] = [
     instructor: "Jason Ishmael",
     priceSingle: 59,
     moodleShortname: "601",
-    status: "proximo",
+    status: "activo",
     bannerBg: "from-stone-900 to-amber-950"
   },
   {
@@ -162,7 +159,7 @@ export const DEFAULT_COURSES: Course[] = [
     instructor: "Dr. Bobby Harrington",
     priceSingle: 59,
     moodleShortname: "701",
-    status: "proximo",
+    status: "activo",
     bannerBg: "from-amber-950 to-[#1A1A19]"
   },
   {
@@ -185,7 +182,7 @@ export const DEFAULT_COURSES: Course[] = [
     instructor: "Jason Ishmael",
     priceSingle: 59,
     moodleShortname: "801",
-    status: "proximo",
+    status: "activo",
     bannerBg: "from-[#1A1A19] to-amber-900"
   },
   {
@@ -208,22 +205,22 @@ export const DEFAULT_COURSES: Course[] = [
     instructor: "Dr. Reggie Rice",
     priceSingle: 59,
     moodleShortname: "901",
-    status: "proximo",
+    status: "activo",
     bannerBg: "from-emerald-900 to-slate-900"
   },
   {
     id: "M103",
     moodleCourseId: 12,
     code: "1001",
-    title: "Formación espiritual",
+    title: "Formación espiritual I",
     category: "Ministerio Práctico",
     credits: 3,
-    description: "Prácticas de disciplinas espirituales cristianas (oración, ayuno, meditación bíblica, soledad y comunidad) para una transformación personal y madurez duradera en Cristo.",
+    description: "Prácticas y disciplinas espirituales cristianas (oración, ayuno, meditación bíblica, soledad y silencio) para una transformación personal profunda y madurez duradera en Cristo.",
     detailedSyllabus: [
-      "Unidad 1: La teología de la transformación espiritual",
-      "Unidad 2: Las disciplinas de devoción personal (oración, lectura bíblica)",
-      "Unidad 3: Las disciplinas de comunidad y rendición de cuentas",
-      "Unidad 4: Hábitos para el ministerio sostenible a largo plazo"
+      "Unidad 1: La teología de la transformación espiritual y el corazón renovado",
+      "Unidad 2: Las disciplinas de devoción interior y comunión con Dios",
+      "Unidad 3: Superación de la fatiga ministerial mediante ritmos santos",
+      "Unidad 4: Hábitos diarios para el sostenimiento espiritual del líder"
     ],
     startDate: "2027-03-01",
     endDate: "2027-04-15",
@@ -231,153 +228,95 @@ export const DEFAULT_COURSES: Course[] = [
     instructor: "Josh Branham",
     priceSingle: 59,
     moodleShortname: "1001",
-    status: "proximo",
+    status: "activo",
     bannerBg: "from-slate-900 to-amber-950"
   },
-
-  // ==========================================
-  // CURSOS DE RENEWU.ORG NO OFRECIDOS EN IBERIA
-  // (Observaciones de Rachel: Sin instructores locales / No ofrecidos aquí)
-  // ==========================================
   {
-    id: "B103",
-    moodleCourseId: 0,
-    code: "B103",
-    title: "Panorama general del Nuevo Testamento",
-    category: "Estudios Bíblicos",
-    credits: 3,
-    description: "Estudio panorámico del Nuevo Testamento en el currículo global de RenewU.org. (Nota: Este curso no se ofrece actualmente en la sede de RenewU Iberia).",
-    detailedSyllabus: [
-      "Materia no impartida en la sede de RenewU Iberia.",
-      "Disponible en el campus global de RenewU.org."
-    ],
-    startDate: "—",
-    endDate: "—",
-    registrationDeadline: "—",
-    instructor: "No disponible (No ofrecido en Iberia)",
-    priceSingle: 59,
-    moodleShortname: "GLOBAL-B103",
-    status: "archivado",
-    bannerBg: "from-neutral-800 to-neutral-900"
-  },
-  {
-    id: "S102",
-    moodleCourseId: 0,
-    code: "S102",
-    title: "Teología Sistemática 1",
-    category: "Teología Sistemática",
-    credits: 3,
-    description: "Doctrina de Dios, la Trinidad y la Creación en el currículo general de RenewU.org. (Nota: Este curso no se ofrece actualmente en la sede de RenewU Iberia).",
-    detailedSyllabus: [
-      "Materia no impartida en la sede de RenewU Iberia.",
-      "Disponible en el campus global de RenewU.org."
-    ],
-    startDate: "—",
-    endDate: "—",
-    registrationDeadline: "—",
-    instructor: "No disponible (No ofrecido en Iberia)",
-    priceSingle: 59,
-    moodleShortname: "GLOBAL-S102",
-    status: "archivado",
-    bannerBg: "from-neutral-800 to-neutral-900"
-  },
-  {
-    id: "S103",
-    moodleCourseId: 0,
-    code: "S103",
-    title: "Teología Sistemática 2",
-    category: "Teología Sistemática",
-    credits: 3,
-    description: "Cristología, Expiación y Soteriología en el currículo general de RenewU.org. (Nota: Este curso no se ofrece actualmente en la sede de RenewU Iberia).",
-    detailedSyllabus: [
-      "Materia no impartida en la sede de RenewU Iberia.",
-      "Disponible en el campus global de RenewU.org."
-    ],
-    startDate: "—",
-    endDate: "—",
-    registrationDeadline: "—",
-    instructor: "No disponible (No ofrecido en Iberia)",
-    priceSingle: 59,
-    moodleShortname: "GLOBAL-S103",
-    status: "archivado",
-    bannerBg: "from-neutral-800 to-neutral-900"
-  },
-  {
-    id: "E101",
-    moodleCourseId: 0,
-    code: "E101",
-    title: "Eclesiología y Misión Global",
-    category: "Teología Sistemática",
-    credits: 3,
-    description: "Naturaleza y misión de la iglesia en el mundo actual. (Nota: Este curso no se ofrece actualmente en la sede de RenewU Iberia).",
-    detailedSyllabus: [
-      "Materia no impartida en la sede de RenewU Iberia.",
-      "Disponible en el campus global de RenewU.org."
-    ],
-    startDate: "—",
-    endDate: "—",
-    registrationDeadline: "—",
-    instructor: "No disponible (No ofrecido en Iberia)",
-    priceSingle: 59,
-    moodleShortname: "GLOBAL-E101",
-    status: "archivado",
-    bannerBg: "from-neutral-800 to-neutral-900"
-  },
-  {
-    id: "H101",
-    moodleCourseId: 0,
-    code: "H101",
-    title: "Historia de la Iglesia",
-    category: "Historia y Apologética",
-    credits: 3,
-    description: "Historia eclesiástica general en el catálogo de RenewU.org. (Nota: Este curso no se ofrece actualmente en la sede de RenewU Iberia).",
-    detailedSyllabus: [
-      "Materia no impartida en la sede de RenewU Iberia.",
-      "Disponible en el campus global de RenewU.org."
-    ],
-    startDate: "—",
-    endDate: "—",
-    registrationDeadline: "—",
-    instructor: "No disponible (No ofrecido en Iberia)",
-    priceSingle: 59,
-    moodleShortname: "GLOBAL-H101",
-    status: "archivado",
-    bannerBg: "from-neutral-800 to-neutral-900"
-  },
-  {
-    id: "M104",
-    moodleCourseId: 0,
-    code: "M104",
-    title: "Ministerio práctico",
+    id: "M1002",
+    moodleCourseId: 13,
+    code: "1002",
+    title: "Formación Espiritual II",
     category: "Ministerio Práctico",
     credits: 3,
-    description: "Homilética y ministerio práctico general de RenewU.org. (Nota: Este curso no se ofrece actualmente en la sede de RenewU Iberia).",
+    description: "Continuación avanzada de la formación espiritual aplicada a la vida en comunidad, mentoría relacional, discernimiento espiritual y liderazgo centrado en la gracia de Dios.",
     detailedSyllabus: [
-      "Materia no impartida en la sede de RenewU Iberia.",
-      "Disponible en el campus global de RenewU.org."
+      "Unidad 1: La comunidad cristiana como fragua de carácter espiritual",
+      "Unidad 2: Discernimiento bíblico comunitario y toma de decisiones",
+      "Unidad 3: Mentoría espiritual y acompañamiento en el camino de la fe",
+      "Unidad 4: El legado espiritual y la perseverancia ministerial"
     ],
-    startDate: "—",
-    endDate: "—",
-    registrationDeadline: "—",
-    instructor: "No disponible (No ofrecido en Iberia)",
+    startDate: "2027-03-15",
+    endDate: "2027-04-30",
+    registrationDeadline: "2027-03-05",
+    instructor: "Josh Branham",
     priceSingle: 59,
-    moodleShortname: "GLOBAL-M104",
-    status: "archivado",
-    bannerBg: "from-neutral-800 to-neutral-900"
+    moodleShortname: "1002",
+    status: "activo",
+    bannerBg: "from-amber-950 to-slate-900"
+  },
+  {
+    id: "M1003",
+    moodleCourseId: 14,
+    code: "1003",
+    title: "Introducción al asesoramiento en situaciones de crisis",
+    category: "Ministerio Práctico",
+    credits: 3,
+    description: "Principios de consejería bíblica y primeros auxilios emocionales para pastores y líderes eclesiásticos frente a duelos, traumas, crisis familiares y quebranto personal.",
+    detailedSyllabus: [
+      "Unidad 1: Teología del sufrimiento y fundamentos del cuidado pastoral",
+      "Unidad 2: Primeros auxilios psicológicos y emocionales desde la perspectiva bíblica",
+      "Unidad 3: Intervención pastoral en duelo, trauma y crisis conyugales",
+      "Unidad 4: Ética del consejero, confidencialidad y derivación responsable"
+    ],
+    startDate: "2027-04-01",
+    endDate: "2027-05-15",
+    registrationDeadline: "2027-03-22",
+    instructor: "Dr. Kelvin Teamer",
+    priceSingle: 59,
+    moodleShortname: "1003",
+    status: "activo",
+    bannerBg: "from-zinc-900 to-amber-950"
+  },
+  {
+    id: "M1004",
+    moodleCourseId: 15,
+    code: "1004",
+    title: "Hacer discípulos: La misión central de la Iglesia",
+    category: "Ministerio Práctico",
+    credits: 3,
+    description: "Modelo teológico y práctico del discipulado multiplicador según Jesús. Estrategias comprobadas para convertir a la iglesia local en una comunidad activa de hacedores de discípulos.",
+    detailedSyllabus: [
+      "Unidad 1: El mandato de la Gran Comisión y el modelo de discipulado de Jesús",
+      "Unidad 2: Las cinco etapas del crecimiento del discípulo (Discipleshift)",
+      "Unidad 3: Grupos de discipulado relacional: estructura, dinámica y multiplicación",
+      "Unidad 4: Transformación de la cultura eclesial hacia una misión discipuladora"
+    ],
+    startDate: "2027-04-15",
+    endDate: "2027-05-30",
+    registrationDeadline: "2027-04-05",
+    instructor: "Dr. Bobby Harrington",
+    priceSingle: 59,
+    moodleShortname: "1004",
+    status: "activo",
+    bannerBg: "from-amber-900 to-[#1A1A19]"
   }
 ];
 
-const STORAGE_KEY = "renewu_courses_catalog_v2";
+const STORAGE_KEY = "renewu_courses_catalog_v5";
 
 export function getStoredCourses(): Course[] {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
     if (data) {
-      return JSON.parse(data);
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed) && parsed.length >= DEFAULT_COURSES.length) {
+        return parsed;
+      }
     }
   } catch (e) {
     console.error("Error reading courses from localStorage", e);
   }
+  saveStoredCourses(DEFAULT_COURSES);
   return DEFAULT_COURSES;
 }
 

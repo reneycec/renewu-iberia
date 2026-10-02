@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { ViewMode, LanguageCode } from "../types";
 import { AVAILABLE_LANGUAGES, Dictionary } from "../data/translations";
-import { GraduationCap, Database, Bot, Layout, CreditCard, FileText, Globe, BookOpen, Info, Lock, Unlock, Edit3, X, KeyRound } from "lucide-react";
+import { GraduationCap, Database, Bot, Layout, CreditCard, FileText, Globe, BookOpen, Info, Lock, Unlock, Edit3, X, KeyRound, ExternalLink } from "lucide-react";
 
 interface HeaderProps {
   currentView: ViewMode;
@@ -59,9 +59,21 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="max-w-7xl mx-auto flex flex-row justify-between items-center">
           <div className="flex items-center gap-2">
             {isAdmin ? (
-              <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded text-[11px] font-bold flex items-center gap-1">
-                <Unlock className="w-3 h-3" /> Modo Admin Activo
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded text-[11px] font-bold flex items-center gap-1">
+                  <Unlock className="w-3 h-3" /> Modo Admin Activo
+                </span>
+                <a
+                  href="https://campus.renewu-iberia.com/admin/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="bg-[#D6B858] hover:bg-[#c3a447] text-[#1A1A19] font-black text-[11px] px-2.5 py-0.5 rounded flex items-center gap-1 transition-all shadow-xs"
+                  title="Abrir Moodle Campus Administración en nueva pestaña"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  <span>Campus Moodle Admin</span>
+                </a>
+              </div>
             ) : (
               <span className="text-gray-400 text-[11px]">Renew University — Portal Oficial de Certificados</span>
             )}

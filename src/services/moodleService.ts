@@ -51,7 +51,10 @@ export const MOODLE_COURSE_MAPPING: Record<string, number> = {
   "701": 9,   // 701 Teología bíblica (Moodle ID 9)
   "801": 10,  // 801 La historia de la iglesia y la búsqueda de la fe bíblica (Moodle ID 10)
   "901": 11,  // 901 Ministerio y liderazgo cristianos (Moodle ID 11)
-  "1001": 12, // 1001 Formación espiritual (Moodle ID 12)
+  "1001": 12, // 1001 Formación espiritual I (Moodle ID 12)
+  "1002": 13, // 1002 Formación espiritual II (Moodle ID 13)
+  "1003": 14, // 1003 Introducción al asesoramiento en situaciones de crisis (Moodle ID 14)
+  "1004": 15, // 1004 Hacer discípulos: La misión central de la Iglesia (Moodle ID 15)
 
   // Curriculum codes from RenewU
   "B101": 6,  // Hermenéutica -> 301
@@ -60,6 +63,9 @@ export const MOODLE_COURSE_MAPPING: Record<string, number> = {
   "M101": 11, // Liderazgo y Discipulado -> 901
   "M102": 4,  // Apologética -> 201
   "M103": 12, // Ética / Formación espiritual -> 1001
+  "M1002": 13, // Formación espiritual II -> 1002
+  "M1003": 14, // Asesoramiento en crisis -> 1003
+  "M1004": 15, // Hacer discípulos -> 1004
 };
 
 export const DEFAULT_MOODLE_COURSE_ID = 3; // Curso 101 Jesús y los Evangelios
@@ -165,6 +171,21 @@ export async function getMoodleUserByEmail(email: string): Promise<MoodleUser | 
   } catch (err) {
     console.error("Error checking Moodle user by email:", err);
     return null;
+  }
+}
+
+/**
+ * Get courses a user is actively enrolled in
+ */
+export async function getUserEnrolledCourses(userId: number): Promise<any[]> {
+  try {
+    const courses = await callMoodleWs("core_enrol_get_users_courses", {
+      userid: userId,
+    });
+    return Array.isArray(courses) ? courses : [];
+  } catch (err) {
+    console.error("Error retrieving Moodle user enrolled courses:", err);
+    return [];
   }
 }
 

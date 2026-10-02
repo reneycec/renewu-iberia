@@ -49,22 +49,6 @@
       "email": "chad.ragsdale@renewu-iberia.com"
     },
     {
-      "id": "antonio-garcia",
-      "name": "Prof. Antonio García",
-      "role": "Profesor de Estudios del Antiguo Testamento & Ética",
-      "specialty": "Antiguo Testamento, Historia del Dogma & Ética Cristiana",
-      "bioEs": "El Prof. Antonio García es un experimentado docente e historiador eclesiástico enfocado en el panorama narrativo del Antiguo Testamento, la evolución de los dogmas cristianos desde la Iglesia Primitiva y la aplicación práctica de la ética bíblica en la sociedad iberoamericana.",
-      "bioEn": "Prof. Antonio García is an experienced instructor focused on Old Testament narrative, history of Christian dogma from the early church, and practical application of biblical ethics.",
-      "image": "https://renewuniversity.org/wp-content/uploads/2025/04/Jason-Ishmael-Headshot.jpg",
-      "externalLink": "https://renewuniversity.org/about/faculty",
-      "coursesTaught": [
-        "B102",
-        "M103",
-        "H101"
-      ],
-      "email": "antonio.garcia@renewu-iberia.com"
-    },
-    {
       "id": "orpheus-heyward",
       "name": "Dr. Orpheus J. Heyward",
       "role": "Catedrático de Exposición Bíblica & Hermenéutica",
